@@ -1,8 +1,11 @@
 package DataManager;
 
+import org.apache.jena.ontology.Individual;
+import org.apache.jena.ontology.OntClass;
 import org.apache.jena.ontology.OntModel;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.util.FileManager;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -13,7 +16,7 @@ public class OntologyManager {
 
     private String ont_dir_output;
 
-    final private String namespace = "https://w3id.org/mobility/transmodel/";
+    final private Namespaces namespaces = new Namespaces();
 
     public OntModel model;
 
@@ -66,5 +69,32 @@ public class OntologyManager {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void printModel() {
+        this.model.write( System.out );
+    }
+
+    public Individual addIndividual(@NotNull OntologyEntityClasses entity, String ont_class, String new_individual){
+        String url = "";
+        switch (entity){
+            case FACILITIES:
+                url = namespaces.getFACILITIES();
+                break;
+
+            case CORE:
+                url = namespaces.getCORE();
+                break;
+
+            case COMMONS:
+                url = namespaces.getCOMMONS();
+                break;
+
+            case JOURNEYS:
+                url = namespaces.getJOURNEYS();
+        }
+
+        OntClass Noun = this.model.getOntClass(url + ont_class);
+        return this.model.createIndividual(url + new_individual, Noun);
     }
 }
