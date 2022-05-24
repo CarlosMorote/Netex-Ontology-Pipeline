@@ -1,34 +1,41 @@
-package DataManager;
+package DataManager.Ontology;
 
 import org.apache.jena.ontology.Individual;
 import org.apache.jena.ontology.OntClass;
 import org.apache.jena.ontology.OntModel;
+import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.util.FileManager;
+import org.apache.jena.vocabulary.RDF;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class OntologyManager {
+public class RDFManager {
     private String ont_source;
 
     private String ont_dir_output;
 
     final private Namespaces namespaces = new Namespaces();
 
-    public OntModel model;
+    public OntModel ont;
 
-    public OntologyManager(String ont_source) {
+    public Model rdf;
+
+    public RDFManager(String ont_source) {
         this.ont_source = ont_source;
-        this.model = this.loadModel(ont_source);
+        this.ont = this.loadModel(ont_source);
+        this.rdf = ModelFactory.createDefaultModel();
     }
 
-    public OntologyManager(String ont_source, String ont_dir_output) {
-        this.ont_source = ont_source;
+    public RDFManager(String ont_source, String ont_dir_output) {
         this.ont_dir_output = ont_dir_output;
-        this.model = this.loadModel(ont_source);
+        this.ont_source = ont_source;
+        this.ont = this.loadModel(ont_source);
+        this.rdf = ModelFactory.createDefaultModel();
     }
 
     public OntModel loadModel(String source){
@@ -56,23 +63,27 @@ public class OntologyManager {
         return model;
     }
 
-    public void saveModel(){
-        this.saveModel(this.ont_dir_output);
+    public void saveRDF(){
+        this.saveRDF(this.ont_dir_output);
     }
 
-    public void saveModel(String output){
+    public void saveRDF(String output){
         FileWriter out = null;
         try {
             out = new FileWriter(output);
-            this.model.write(out, "RDF/XML-ABBREV");
+            this.rdf.write(out, "RDF/XML-ABBREV");
             out.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void printModel() {
-        this.model.write( System.out );
+    public void printOntology() {
+        this.ont.write( System.out );
+    }
+
+    public void printRDF() {
+        this.rdf.write(System.out);
     }
 
     public Individual addIndividual(@NotNull OntologyEntityClasses entity, String ont_class, String new_individual){
@@ -92,9 +103,40 @@ public class OntologyManager {
 
             case JOURNEYS:
                 url = namespaces.getJOURNEYS();
+                break;
+
+            case ORGANISATIONS:
+                url = namespaces.getORGANISATIONS();
+                break;
         }
 
-        OntClass Noun = this.model.getOntClass(url + ont_class);
-        return this.model.createIndividual(url + new_individual, Noun);
+        OntClass Noun = this.ont.getOntClass(url + ont_class);
+        return this.ont.createIndividual(url + new_individual, Noun);
+    }
+
+    public void addResource(Object o){
+        Resource resource = this.ont.createResource();
+        resource.addLiteral(RDF.value, o);
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

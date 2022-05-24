@@ -1,4 +1,4 @@
-package DataManager;
+package DataManager.Netex;
 
 import org.entur.netex.NetexParser;
 import org.entur.netex.index.api.NetexEntitiesIndex;
@@ -10,6 +10,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 public class NetexManager {
     private NetexEntitiesIndex netex;
@@ -24,7 +25,7 @@ public class NetexManager {
     }
 
     public Collection getData(String property){
-        String method = "get"+property+"Index";
+        String method = String.format("get%sIndex", property);
         try {
             return ((NetexEntityMapByIdImpl) this.netex.getClass().getMethod(method).invoke(netex)).getAll();
         } catch (IllegalAccessException e) {
