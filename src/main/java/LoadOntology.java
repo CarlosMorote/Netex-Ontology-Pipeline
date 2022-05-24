@@ -10,7 +10,7 @@ import java.io.InputStream;
 
 public class LoadOntology {
     public static void main(String[] args) throws IOException {
-        String args_0 = "ontology.rdf";
+        String args_0 = "journey.rdf";
         String args_1 = "writeTests.rdf";
 
         //Ontology

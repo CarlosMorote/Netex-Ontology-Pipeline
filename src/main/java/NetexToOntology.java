@@ -2,36 +2,40 @@ import DataManager.Netex.NetexManager;
 import DataManager.Ontology.OntologyEntityClasses;
 import DataManager.Ontology.RDFManager;
 import DataManager.Ontology.OntologyParser;
-import org.rutebanken.netex.model.MultilingualString;
-import org.rutebanken.netex.model.Operator;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.vocabulary.RDF;
+import org.apache.jena.vocabulary.VCARD;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class NetexToOntology {
     public static void main(String[] args) {
-        testOntologyMannager();
+        //testOntologyMannager();
         //testNetexMannager();
-        //testMapping();
+        testMapping();
     }
 
     private static void testMapping() {
-        String args_0 = "ontology.rdf"; // input ontology file
+        String args_0 = "journey.rdf"; // input ontology file
         String args_1 = "writeTest.rdf"; // output ontology file
         String args_2 = "/Users/carlosmorote/Master local/TFM/OpenTripPlannerCompile/data/norway/netex_OST.zip";
 
-        RDFManager RDFManager = new RDFManager(args_0, args_1);
+        RDFManager rdfManager = new RDFManager(args_0, args_1);
         NetexManager netexManager = new NetexManager(args_2);
-        OntologyParser ontologyParser = new OntologyParser(RDFManager);
+        OntologyParser ontologyParser = new OntologyParser(rdfManager, netexManager);
 
-        Collection information = netexManager.getData("Operator");
-        information.parallelStream().map(ontologyParser::parse).collect(Collectors.toList());
+        ontologyParser.castNetexToOntology();
 
-        RDFManager.saveRDF();
+        rdfManager.printRDF();
+        rdfManager.saveRDF();
     }
 
     public static void testOntologyMannager(){
-        String args_0 = "ontology.rdf"; // input ontology file
+        String args_0 = "journey.rdf"; // input ontology file
         String args_1 = "writeTest.rdf"; // output ontology file
 
         RDFManager rdf = new RDFManager(args_0, args_1);
@@ -40,13 +44,13 @@ public class NetexToOntology {
                 "Operator",
                 "TestNewIndividual"
         );
-        Operator operator = new Operator();
-        MultilingualString aux = new MultilingualString();
-        aux.setValue("Descripcion de prueba");
-        operator.withDescription(aux);
-        aux.setValue("Nombre de prueba");
-        operator.withName(aux);
-        rdf.addResource(operator);
+
+        Model modelTest = rdf.rdf;
+        Resource test = modelTest.createResource("https://w3id.org/mobility/transmodel/journeys/resource/Route/L1-10");
+        test.addProperty(RDF.value, "Pepe1-10");
+        test.addProperty(VCARD.FN, "Familiy");
+        modelTest.write(System.out);
+
         rdf.saveRDF();
     }
 
@@ -55,9 +59,9 @@ public class NetexToOntology {
         String args_0 = "/Users/carlosmorote/Master local/TFM/OpenTripPlannerCompile/data/norway/netex_OST.zip";
 
         NetexManager netexManager = new NetexManager(args_0);
-        OntologyParser o_parser = new OntologyParser(null); // Para test
+        OntologyParser o_parser = new OntologyParser(null, null); // Para test
 
         Collection information = netexManager.getData("Operator");
-        information.parallelStream().map(o_parser::parse).collect(Collectors.toList());
+        //information.parallelStream().map(o_parser::parse).collect(Collectors.toList());
     }
 }

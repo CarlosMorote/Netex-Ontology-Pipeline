@@ -1,11 +1,12 @@
 package DataManager.Ontology;
 
-import org.rutebanken.netex.model.Authority;
-import org.rutebanken.netex.model.Branding;
-import org.rutebanken.netex.model.Operator;
+import org.rutebanken.netex.model.*;
 
 public interface OntologyParserInterface {
-    Operator mapOperator(Operator operator);
 
-    Branding mapBranding(Branding branding);
+    Authority mapAuthority(Authority authority);
+    Operator mapOperator(Operator operator);
+    ServiceLink mapServiceLink(ServiceLink serviceLink);
+    JourneyPattern mapJourneyPattern(JourneyPattern journeyPattern);
+
 }
