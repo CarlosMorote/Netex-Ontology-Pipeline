@@ -1,7 +1,6 @@
 package DataManager.Ontology;
 
 import DataManager.Netex.NetexManager;
-import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.vocabulary.*;
 import org.rutebanken.netex.model.*;
@@ -10,18 +9,18 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
-public class OntologyParser implements OntologyParserInterface {
+public class OntologyParserFromNetex implements OntologyParserInterface {
 
     private RDFManager rdfManager;
     private NetexManager netexManager;
     private String[] classesToCast;
     private Collection information;
 
-    public OntologyParser(RDFManager RDFManager, NetexManager netexManager) {
+    public OntologyParserFromNetex(RDFManager RDFManager, NetexManager netexManager) {
         this.rdfManager = RDFManager;
         this.netexManager = netexManager;
         this.classesToCast = new String[]{
-                "Authority", "Operator", "ServiceLink", "JourneyPattern"
+                "Authority", "Operator", "JourneyPattern"
         };
     }
 
@@ -32,11 +31,9 @@ public class OntologyParser implements OntologyParserInterface {
         }
     }
 
-    public void castOntologyToNetex(){
 
-    }
-
-    private Object parse(Object o){
+    @Override
+    public Object parse(Object o){
         String method = String.format("map%s", o.getClass().getSimpleName());
 
         try {
@@ -57,8 +54,8 @@ public class OntologyParser implements OntologyParserInterface {
         Resource authority_resource = this.rdfManager.rdf.createResource(Namespaces.CORE+"/Resource/Authority/"+id);
         this.rdfManager.addType(authority_resource, Namespaces.ORGANISATIONS+"#Authority");
         authority_resource.addProperty(RDFS.label, id);
-        authority_resource.addProperty(SKOS.prefLabel, authority.getName().getValue());
         authority_resource.addProperty(SKOS.notation, authority.getCompanyNumber());
+        authority_resource.addProperty(SKOS.prefLabel, authority.getName().getValue());
 
         return authority;
     }
@@ -69,12 +66,15 @@ public class OntologyParser implements OntologyParserInterface {
         Resource operator_resource = this.rdfManager.rdf.createResource(Namespaces.ORGANISATIONS+"/Resource/Operator/"+id);
         this.rdfManager.addType(operator_resource, Namespaces.ORGANISATIONS+"#Operator");
         operator_resource.addProperty(RDFS.label, id);
+        operator_resource.addProperty(SKOS.notation, operator.getCompanyNumber());
         operator_resource.addProperty(VCARD4.hasName, operator.getName().getValue());
         operator_resource.addProperty(VCARD4.hasURL, operator.getCustomerServiceContactDetails().getUrl());
 
         return operator;
     }
 
+    // Metodo deprecated. Service link ni se puede ni es necesario mappearlo
+    @Deprecated
     @Override
     public ServiceLink mapServiceLink(ServiceLink serviceLink) {
         String id = serviceLink.getId();

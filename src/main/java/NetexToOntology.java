@@ -1,16 +1,13 @@
 import DataManager.Netex.NetexManager;
 import DataManager.Ontology.OntologyEntityClasses;
 import DataManager.Ontology.RDFManager;
-import DataManager.Ontology.OntologyParser;
+import DataManager.Ontology.OntologyParserFromNetex;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.VCARD;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class NetexToOntology {
     public static void main(String[] args) {
@@ -22,11 +19,11 @@ public class NetexToOntology {
     private static void testMapping() {
         String args_0 = "journey.rdf"; // input ontology file
         String args_1 = "writeTest.rdf"; // output ontology file
-        String args_2 = "/Users/carlosmorote/Master local/TFM/OpenTripPlannerCompile/data/norway/netex_OST.zip";
+        String args_2 = "/Users/carlosmorote/Master local/TFM/OpenTripPlannerCompile/data/norway/OST-netex.zip";
 
         RDFManager rdfManager = new RDFManager(args_0, args_1);
         NetexManager netexManager = new NetexManager(args_2);
-        OntologyParser ontologyParser = new OntologyParser(rdfManager, netexManager);
+        OntologyParserFromNetex ontologyParser = new OntologyParserFromNetex(rdfManager, netexManager);
 
         ontologyParser.castNetexToOntology();
 
@@ -59,7 +56,7 @@ public class NetexToOntology {
         String args_0 = "/Users/carlosmorote/Master local/TFM/OpenTripPlannerCompile/data/norway/netex_OST.zip";
 
         NetexManager netexManager = new NetexManager(args_0);
-        OntologyParser o_parser = new OntologyParser(null, null); // Para test
+        OntologyParserFromNetex o_parser = new OntologyParserFromNetex(null, null); // Para test
 
         Collection information = netexManager.getData("Operator");
         //information.parallelStream().map(o_parser::parse).collect(Collectors.toList());

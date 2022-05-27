@@ -4,9 +4,17 @@ import org.entur.netex.NetexParser;
 import org.entur.netex.index.api.NetexEntitiesIndex;
 import org.entur.netex.index.impl.NetexEntityMapByIdImpl;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 
 public class NetexManager {
     private NetexEntitiesIndex netex;
@@ -14,6 +22,10 @@ public class NetexManager {
     public NetexManager(String zip_path) {
         NetexParser parser = new NetexParser();
         try {
+            ZipFile zip = new ZipFile(zip_path);
+            FileInputStream io = new FileInputStream(zip_path);
+
+            //List<ZipEntry> files = zip.stream().filter(file -> !(file.getName().contains("DS_Store") || file.getName().contains("MACOSX"))).collect(Collectors.toList());
             this.netex = parser.parse(zip_path);
         } catch (IOException e) {
             throw new RuntimeException(e);
