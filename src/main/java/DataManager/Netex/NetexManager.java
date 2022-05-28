@@ -17,7 +17,7 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
 public class NetexManager {
-    private NetexEntitiesIndex netex;
+    public NetexEntitiesIndex netex;
 
     public NetexManager(String zip_path) {
         NetexParser parser = new NetexParser();

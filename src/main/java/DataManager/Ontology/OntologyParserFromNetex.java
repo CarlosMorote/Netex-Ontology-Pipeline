@@ -21,7 +21,7 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
         this.rdfManager = RDFManager;
         this.netexManager = netexManager;
         this.classesToCast = new String[]{
-                "Authority", "Operator", "JourneyPattern"
+                "Authority", "Operator", "ScheduledStopPoint", "JourneyPattern"
         };
     }
 
@@ -29,6 +29,7 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
         for (String cls: this.classesToCast) {
             information = this.netexManager.getData(cls);
             information.stream().map(this::parse).collect(Collectors.toList());
+            System.out.println(cls + " Mapped");
         }
     }
 
@@ -94,6 +95,16 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
     }
 
     @Override
+    public Resource mapScheduledStopPoint(ScheduledStopPoint scheduledStopPoint) {
+        String id = scheduledStopPoint.getId();
+        Resource scheduledStopPoint_resource = this.rdfManager.rdf.createResource(Namespaces.JOURNEYS+"/Resource/ScheduledStopPoint/"+id);
+        this.rdfManager.addType(scheduledStopPoint_resource, Namespaces.JOURNEYS+"#ScheduledStopPoint");
+        scheduledStopPoint_resource.addLiteral(SchemaDO.name, scheduledStopPoint.getName().getValue());
+
+        return scheduledStopPoint_resource;
+    }
+
+    @Override
     public Resource mapJourneyPattern(JourneyPattern journeyPattern) {
         String id = journeyPattern.getId();
         Resource journeyPattern_resource = this.rdfManager.rdf.createResource(Namespaces.JOURNEYS+"/Resource/ServiceJourneyPattern/"+id);
@@ -119,14 +130,15 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
         journeyPattern_resource.addProperty(Namespaces.journeyPatternMadeUpOf, stopPointInJourneyPattern);
         rdfManager.addType(stopPointInJourneyPattern, Namespaces.JOURNEYS+"#StopPointsInJourneyPattern");
 
-        Boolean forAlighting = ((StopPointInJourneyPattern) point).isForAlighting();
+        Boolean forAlighting = point.isForAlighting();
         if(forAlighting != null)
             stopPointInJourneyPattern.addLiteral(Namespaces.forAlighting, forAlighting);
 
-        // TODO: AÑADIR RECURSO Y NO SOLO LA DIRECCIÓN
         JAXBElement<? extends ScheduledStopPointRefStructure> scheduledStopPoint = ((StopPointInJourneyPattern) point).getScheduledStopPointRef();
-        if(scheduledStopPoint != null)
-            stopPointInJourneyPattern.addProperty(Namespaces.scheduledStopPoint, scheduledStopPoint.getValue().getRef());
+        if(scheduledStopPoint != null){
+            Resource stop_resource = this.rdfManager.rdf.getResource(Namespaces.JOURNEYS+"/Resource/ScheduledStopPoint/"+id_point);
+            stopPointInJourneyPattern.addProperty(Namespaces.scheduledStopPoint, stop_resource);
+        }
 
         return stopPointInJourneyPattern;
     }

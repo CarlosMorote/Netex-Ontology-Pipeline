@@ -27,7 +27,7 @@ public class NetexToOntology {
 
         ontologyParser.castNetexToOntology();
 
-        rdfManager.printRDF();
+        //rdfManager.printRDF();
         rdfManager.saveRDF();
     }
 
