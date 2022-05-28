@@ -5,6 +5,7 @@ import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.vocabulary.*;
 import org.rutebanken.netex.model.*;
 
+import javax.xml.bind.JAXBElement;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.stream.Collectors;
@@ -49,7 +50,7 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
     }
 
     @Override
-    public Authority mapAuthority(Authority authority) {
+    public Resource mapAuthority(Authority authority) {
         String id = authority.getId();
         Resource authority_resource = this.rdfManager.rdf.createResource(Namespaces.CORE+"/Resource/Authority/"+id);
         this.rdfManager.addType(authority_resource, Namespaces.ORGANISATIONS+"#Authority");
@@ -57,11 +58,11 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
         authority_resource.addProperty(SKOS.notation, authority.getCompanyNumber());
         authority_resource.addProperty(SKOS.prefLabel, authority.getName().getValue());
 
-        return authority;
+        return authority_resource;
     }
 
     @Override
-    public Operator mapOperator(Operator operator) {
+    public Resource mapOperator(Operator operator) {
         String id = operator.getId();
         Resource operator_resource = this.rdfManager.rdf.createResource(Namespaces.ORGANISATIONS+"/Resource/Operator/"+id);
         this.rdfManager.addType(operator_resource, Namespaces.ORGANISATIONS+"#Operator");
@@ -70,13 +71,13 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
         operator_resource.addProperty(VCARD4.hasName, operator.getName().getValue());
         operator_resource.addProperty(VCARD4.hasURL, operator.getCustomerServiceContactDetails().getUrl());
 
-        return operator;
+        return operator_resource;
     }
 
     // Metodo deprecated. Service link ni se puede ni es necesario mappearlo
     @Deprecated
     @Override
-    public ServiceLink mapServiceLink(ServiceLink serviceLink) {
+    public Resource mapServiceLink(ServiceLink serviceLink) {
         String id = serviceLink.getId();
         Resource serviceLink_resource = this.rdfManager.rdf.createResource(Namespaces.JOURNEYS+"/Resource/ServiceLink/"+id);
         this.rdfManager.addType(serviceLink_resource, Namespaces.JOURNEYS+"#ServiceLink");
@@ -85,29 +86,54 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
         AllModesEnumeration mode = serviceLink.getVehicleMode();
         if(mode != null)
             serviceLink_resource.addProperty(
-                    Namespaces.getResource(this.rdfManager.rdf, Namespaces.COMMONS, "#vehicleMode"),
+                    Namespaces.getProperty(this.rdfManager.rdf, Namespaces.COMMONS, "#vehicleMode"),
                     mode.value()
             );
 
-        return serviceLink;
+        return serviceLink_resource;
     }
 
     @Override
-    public JourneyPattern mapJourneyPattern(JourneyPattern journeyPattern) {
+    public Resource mapJourneyPattern(JourneyPattern journeyPattern) {
         String id = journeyPattern.getId();
-        Resource journeyPattern_resource = this.rdfManager.rdf.createResource(Namespaces.JOURNEYS+"/Resource/JourneyPattern/"+id);
-        this.rdfManager.addType(journeyPattern_resource, Namespaces.JOURNEYS+"#JourneyPattern");
+        Resource journeyPattern_resource = this.rdfManager.rdf.createResource(Namespaces.JOURNEYS+"/Resource/ServiceJourneyPattern/"+id);
+        this.rdfManager.addType(journeyPattern_resource, Namespaces.JOURNEYS+"#ServiceJourneyPattern");
         journeyPattern_resource.addProperty(RDFS.label, id);
+        journeyPattern_resource.addProperty(SchemaDO.name, journeyPattern.getName().getValue());
+        journeyPattern_resource.addProperty(Namespaces.onRoute, journeyPattern.getRouteRef().getRef());
 
-        JourneyPatternHeadways_RelStructure headway = journeyPattern.getHeadways();
-        if(headway != null) {
-            journeyPattern_resource.addProperty(
-                Namespaces.getResource(this.rdfManager.rdf, Namespaces.JOURNEYS, "#headway"),
-                headway.getId() //TODO. SE SUPONE QUE ES DATETIMESTAMP
-            );
-        }
+        journeyPattern.getPointsInSequence()
+                .getPointInJourneyPatternOrStopPointInJourneyPatternOrTimingPointInJourneyPattern()
+                .forEach((point) -> {
+                    mapStopPointInJourneyPattern((StopPointInJourneyPattern) point, journeyPattern_resource);
+                });
 
-        return journeyPattern;
+
+        return journeyPattern_resource;
+    }
+
+    @Override
+    public Resource mapStopPointInJourneyPattern(StopPointInJourneyPattern point, Resource journeyPattern_resource) {
+        String id_point = point.getId();
+        Resource stopPointInJourneyPattern = rdfManager.rdf.createResource(Namespaces.JOURNEYS+"/Resource/StopPointsInJourneyPattern/"+id_point);
+        journeyPattern_resource.addProperty(Namespaces.journeyPatternMadeUpOf, stopPointInJourneyPattern);
+        rdfManager.addType(stopPointInJourneyPattern, Namespaces.JOURNEYS+"#StopPointsInJourneyPattern");
+
+        Boolean forAlighting = ((StopPointInJourneyPattern) point).isForAlighting();
+        if(forAlighting != null)
+            stopPointInJourneyPattern.addLiteral(Namespaces.forAlighting, forAlighting);
+
+        // TODO: AÑADIR RECURSO Y NO SOLO LA DIRECCIÓN
+        JAXBElement<? extends ScheduledStopPointRefStructure> scheduledStopPoint = ((StopPointInJourneyPattern) point).getScheduledStopPointRef();
+        if(scheduledStopPoint != null)
+            stopPointInJourneyPattern.addProperty(Namespaces.scheduledStopPoint, scheduledStopPoint.getValue().getRef());
+
+        return stopPointInJourneyPattern;
+    }
+
+    @Override
+    public Resource mapRoute(Route route) {
+        return null;
     }
 }
 

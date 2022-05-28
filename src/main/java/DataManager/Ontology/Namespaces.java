@@ -23,18 +23,18 @@ public class Namespaces {
     public static final String ORGANISATIONS = TRANSMODEL_ROOT + organisations;
     public static final String CORE = SKOS.getURI();
 
-    // Resources TODO
-    public static final Property FACILITIES_RESOURCE = m.createProperty(TRANSMODEL_ROOT);
-    public static final Property COMMONS_RESOURCE = m.createProperty(TRANSMODEL_ROOT);
-    public static final Property JOURNEYS_RESOURCE = m.createProperty(TRANSMODEL_ROOT);
-    public static final Property ORGANISATIONS_RESOURCE = m.createProperty(TRANSMODEL_ROOT);
-    public static final Property CORE_RESOURCE = m.createProperty(TRANSMODEL_ROOT);
+
+    public static final Property onRoute = getProperty(m, Namespaces.JOURNEYS, "#onRoute");
+    public static final Property journeyPatternMadeUpOf = getProperty(m, Namespaces.JOURNEYS, "#journeyPatternMadeUpOf");
+    public static final Property forAlighting = getProperty(m, Namespaces.JOURNEYS, "#forAlighting");
+    public static final Property scheduledStopPoint = getProperty(m, Namespaces.JOURNEYS, "#scheduledStopPoint");
 
     public Namespaces() {
     }
 
-    public static Property getResource(Model model, String n, String end){
-        return (Property) model.createResource(n+end);
+    // TODO: ARREGLAR NO FUNCIONA
+    public static Property getProperty(Model model, String n, String end){
+        return model.createProperty(n+end);
     }
 
 }
