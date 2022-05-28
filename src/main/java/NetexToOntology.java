@@ -25,7 +25,8 @@ public class NetexToOntology {
         // ---------------------------------
 
         String rdfFile = args_1;
-        NetexParserFromRDF rdfParser = new NetexParserFromRDF(rdfFile);
+        String outPath_Folder = "/Users/carlosmorote/Master local/TFM/GTFS_Ontology_NeTEx/";
+        NetexParserFromRDF rdfParser = new NetexParserFromRDF(rdfFile, outPath_Folder);
         rdfParser.parse();
     }
 

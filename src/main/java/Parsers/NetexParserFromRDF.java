@@ -3,19 +3,39 @@ package Parsers;
 import DataManager.Ontology.RDFManager;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.riot.RDFDataMgr;
-import org.json.XML;
+import org.jdom2.Document;
+import org.jdom2.output.Format;
+import org.jdom2.output.XMLOutputter;
+
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 public class NetexParserFromRDF {
 
     public Model rdf;
-    public XML xml;
+    public Document xml;
+    public String out_path;
+    public XMLOutputter outputter;
 
-    public NetexParserFromRDF(String rdf_path){
+    public NetexParserFromRDF(String rdf_path, String out_path){
         this.rdf = RDFDataMgr.loadModel(rdf_path);
+        this.out_path = out_path;
+        outputter = new XMLOutputter(Format.getPrettyFormat());
+        this.initXML();
     }
 
-    private void generate_sharedData(){
+    private void initXML(){
+        this.xml = new Document();
+        this.xml = XMLStructures.initSharedXML(xml);
+    }
 
+    private void generate_sharedData() throws IOException {
+
+
+        String p = out_path + "_shared_data.xml";
+        outputter.output(xml, new FileOutputStream(p));
+        System.out.println("File "+p+" generated");
     }
 
     private void generate_stops(){
@@ -31,6 +51,10 @@ public class NetexParserFromRDF {
     }
 
     public void parse(){
-
+        try {
+            generate_sharedData();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
