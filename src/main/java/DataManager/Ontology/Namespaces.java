@@ -21,7 +21,7 @@ public class Namespaces {
     public static final String COMMONS = TRANSMODEL_ROOT + commons;
     public static final String JOURNEYS = TRANSMODEL_ROOT + journeys;
     public static final String ORGANISATIONS = TRANSMODEL_ROOT + organisations;
-    public static final String CORE = SKOS.getURI();
+    public static final String CORE = SKOS.getURI().split("#")[0];
 
 
     public static final Property onRoute = getProperty(m, Namespaces.JOURNEYS, "#onRoute");

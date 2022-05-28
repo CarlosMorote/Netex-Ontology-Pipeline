@@ -13,9 +13,11 @@ public class XMLStructures {
         //root.addNamespaceDeclaration(Namespace.getNamespace("http://www.netex.org.uk/netex"));
         root.addNamespaceDeclaration(Namespace.getNamespace("gis", "http://www.opengis.net/gml/3.2"));
         root.addNamespaceDeclaration(Namespace.getNamespace("siri", "http://www.siri.org.uk/siri"));
-        //root.setAttribute(new Attribute("xmlns", "http://www.netex.org.uk/netex"));
-        //root.setAttribute(new Attribute("xmlns:gis", "http://www.opengis.net/gml/3.2"));
-        //root.setAttribute(new Attribute("xmlns:siri", "http://www.siri.org.uk/siri"));
+
+        //Description
+        Element description = new Element("Description");
+        description.setText("Shared data used across line files");
+        root.addContent(description);
 
         return xml;
     }
