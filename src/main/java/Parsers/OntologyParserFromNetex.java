@@ -1,6 +1,8 @@
-package DataManager.Ontology;
+package Parsers;
 
 import DataManager.Netex.NetexManager;
+import DataManager.Ontology.Namespaces;
+import DataManager.Ontology.RDFManager;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.vocabulary.*;
 import org.rutebanken.netex.model.*;

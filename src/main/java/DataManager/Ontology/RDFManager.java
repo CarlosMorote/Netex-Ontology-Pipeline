@@ -92,39 +92,6 @@ public class RDFManager {
             this.rdf.createResource(uri)
         );
     }
-
-    public Individual addIndividual(@NotNull OntologyEntityClasses entity, String ont_class, String new_individual){
-        String url = "";
-        switch (entity){
-            case FACILITIES:
-                url = namespaces.FACILITIES;
-                break;
-
-            case CORE:
-                url = namespaces.CORE;
-                break;
-
-            case COMMONS:
-                url = namespaces.COMMONS;
-                break;
-
-            case JOURNEYS:
-                url = namespaces.JOURNEYS;
-                break;
-
-            case ORGANISATIONS:
-                url = namespaces.ORGANISATIONS;
-                break;
-        }
-
-        OntClass Noun = this.ont.getOntClass(url + ont_class);
-        return this.ont.createIndividual(url + new_individual, Noun);
-    }
-
-    public void addResource(Object o){
-        Resource resource = this.ont.createResource();
-        resource.addLiteral(RDF.value, o);
-    }
 }
 
 

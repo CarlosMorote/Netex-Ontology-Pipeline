@@ -1,4 +1,4 @@
-package DataManager.Ontology;
+package Parsers;
 
 import org.apache.jena.rdf.model.Resource;
 import org.rutebanken.netex.model.*;
