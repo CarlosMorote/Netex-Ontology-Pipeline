@@ -10,7 +10,7 @@ public class NetexToOntology {
 
     private static void testMapping() {
         String args_0 = "journey.rdf"; // input ontology file
-        String args_1 = "writeTest.rdf"; // output ontology file
+        String args_1 = "writeTest.ttl"; // output ontology file
         String args_2 = "/Users/carlosmorote/Master local/TFM/OpenTripPlannerCompile/data/norway/OST-netex.zip";
 
         RDFManager rdfManager = new RDFManager(args_0, args_1);
@@ -20,7 +20,7 @@ public class NetexToOntology {
         //ontologyParser.castNetexToOntology();
 
         //rdfManager.printRDF();
-        //rdfManager.saveRDF();
+        //rdfManager.saveRDF("Turtle");
 
         // ---------------------------------
 

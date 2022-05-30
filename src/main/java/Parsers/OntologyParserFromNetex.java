@@ -77,25 +77,6 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
         return operator_resource;
     }
 
-    // Metodo deprecated. Service link ni se puede ni es necesario mappearlo
-    @Deprecated
-    @Override
-    public Resource mapServiceLink(ServiceLink serviceLink) {
-        String id = serviceLink.getId();
-        Resource serviceLink_resource = this.rdfManager.rdf.createResource(Namespaces.JOURNEYS+"/Resource/ServiceLink/"+id);
-        //this.rdfManager.addType(serviceLink_resource, Namespaces.JOURNEYS+"#ServiceLink");
-        serviceLink_resource.addProperty(RDFS.label, id);
-
-        AllModesEnumeration mode = serviceLink.getVehicleMode();
-        if(mode != null)
-            serviceLink_resource.addProperty(
-                    Namespaces.getProperty(this.rdfManager.rdf, Namespaces.COMMONS, "#vehicleMode"),
-                    mode.value()
-            );
-
-        return serviceLink_resource;
-    }
-
     @Override
     public Resource mapScheduledStopPoint(ScheduledStopPoint scheduledStopPoint) {
         String id = scheduledStopPoint.getId();
@@ -136,7 +117,7 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
         if(forAlighting != null)
             stopPointInJourneyPattern.addLiteral(Namespaces.forAlighting, forAlighting);
 
-        JAXBElement<? extends ScheduledStopPointRefStructure> scheduledStopPoint = ((StopPointInJourneyPattern) point).getScheduledStopPointRef();
+        JAXBElement<? extends ScheduledStopPointRefStructure> scheduledStopPoint = point.getScheduledStopPointRef();
         if(scheduledStopPoint != null){
             Resource stop_resource = this.rdfManager.rdf.getResource(Namespaces.JOURNEYS+"/Resource/ScheduledStopPoint/"+id_point);
             stopPointInJourneyPattern.addProperty(Namespaces.scheduledStopPoint, stop_resource);

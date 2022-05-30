@@ -9,7 +9,6 @@ public interface OntologyParserInterface {
 
     Resource mapAuthority(Authority authority);
     Resource mapOperator(Operator operator);
-    Resource mapServiceLink(ServiceLink serviceLink);
     Resource mapScheduledStopPoint(ScheduledStopPoint scheduledStopPoint);
     Resource mapJourneyPattern(JourneyPattern journeyPattern);
     Resource mapStopPointInJourneyPattern(StopPointInJourneyPattern point, Resource journeyPattern_resource);

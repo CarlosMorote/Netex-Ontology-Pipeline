@@ -63,15 +63,15 @@ public class RDFManager {
         return model;
     }
 
-    public void saveRDF(){
-        this.saveRDF(this.ont_dir_output);
+    public void saveRDF(String format){
+        this.saveRDF(this.ont_dir_output, format);
     }
 
-    public void saveRDF(String output){
+    public void saveRDF(String output, String format){
         FileWriter out = null;
         try {
             out = new FileWriter(output);
-            this.rdf.write(out, "RDF/XML-ABBREV");
+            this.rdf.write(out, format);
             out.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
