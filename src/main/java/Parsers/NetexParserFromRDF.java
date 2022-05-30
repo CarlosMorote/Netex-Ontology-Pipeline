@@ -1,10 +1,17 @@
 package Parsers;
 
+import DataManager.Ontology.Namespaces;
 import DataManager.Ontology.RDFManager;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.Statement;
+import org.apache.jena.rdf.model.StmtIterator;
+import org.apache.jena.rdf.model.impl.StatementImpl;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.vocabulary.RDF;
+import org.apache.jena.vocabulary.RDFS;
+import org.apache.jena.vocabulary.SKOS;
+import org.apache.jena.vocabulary.VCARD4;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.output.Format;
@@ -75,16 +82,31 @@ public class NetexParserFromRDF {
     private Element mapOrganizations(Element current){
         Element organizations = new Element("organizations");
 
-        rdf.listStatements()
-                .filterKeep(x -> x.getSubject().getURI() instanceof String)
-                .filterKeep(x -> x.getSubject().getURI().contains("Operator"))
-                .toList();
-        // CON ESTO PODEMOS OBTENER EL ID Y YA CREAR EL RESOURCE BIEN PARA HACER LA BUSQUEDA EN CONDIONES
-        /*rdf.listStatements()
-                .filterKeep(x -> x.getSubject().getURI() instanceof String)
-                .filterKeep(x -> x.getSubject().getURI().contains("Operator"))
-                .next().getSubject().getURI().split("/")*/
-        //rdf.listStatements(rdf.createResource("https://w3id.org/mobility/transmodel/organisations/Resource/Operator/OST:Operator:152"), null, (RDFNode) null).toList()
+        StmtIterator itera = rdf.listStatements(null, RDF.type, Namespaces.OPERATOR_resource);
+        Resource currentResource;
+        while(itera.hasNext()){
+            currentResource = rdf.getResource(itera.nextStatement().getSubject().toString());
+
+            Element operator = new Element("Operator");
+            operator.setAttribute("id", currentResource.getProperty(RDFS.label).getObject().toString());
+
+            Element name = new Element("Name");
+            name.setText(currentResource.getProperty(VCARD4.hasName).getObject().toString());
+
+            Element compNum = new Element("CompanyNumber");
+            compNum.setText(currentResource.getProperty(SKOS.notation).getObject().toString());
+
+            Element customerServiceContactDetails = new Element("CustomerServiceContactDetails");
+            Element url = new Element("Url");
+            url.setText(currentResource.getProperty(VCARD4.hasURL).getObject().toString());
+            customerServiceContactDetails.addContent(url);
+
+            operator.addContent(customerServiceContactDetails);
+            operator.addContent(compNum);
+            operator.addContent(name);
+
+            current.addContent(operator);
+        }
 
         current.addContent(organizations);
 

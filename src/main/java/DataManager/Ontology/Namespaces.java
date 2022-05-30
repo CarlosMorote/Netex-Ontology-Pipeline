@@ -3,6 +3,7 @@ package DataManager.Ontology;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Property;
+import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.vocabulary.SKOS;
 
 public class Namespaces {
@@ -28,6 +29,13 @@ public class Namespaces {
     public static final Property journeyPatternMadeUpOf = getProperty(m, Namespaces.JOURNEYS, "#journeyPatternMadeUpOf");
     public static final Property forAlighting = getProperty(m, Namespaces.JOURNEYS, "#forAlighting");
     public static final Property scheduledStopPoint = getProperty(m, Namespaces.JOURNEYS, "#scheduledStopPoint");
+
+
+    public static final Resource AUTHORITY_resource = m.createResource(Namespaces.ORGANISATIONS + "#Authority");
+    public static final Resource OPERATOR_resource = m.createResource(Namespaces.ORGANISATIONS + "#Operator");
+    public static final Resource SCHEDULE_STOP_POINT_resource = m.createResource(Namespaces.JOURNEYS+"#ScheduledStopPoint");
+    public static final Resource SERVICE_JOURNEY_PATTERN_resource = m.createResource(Namespaces.JOURNEYS+"#ServiceJourneyPattern");
+    public static final Resource STOP_POINT_IN_JOURNEY_PATTERN_resource = m.createResource(Namespaces.JOURNEYS+"#StopPointsInJourneyPattern");
 
     public Namespaces() {
     }

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PublicationDelivery xmlns="http://www.netex.org.uk/netex" xmlns:gis="http://www.opengis.net/gml/3.2" xmlns:siri="http://www.siri.org.uk/siri">
+  <Description xmlns="">Shared data used across line files</Description>
+  <dataObjects xmlns="">
+    <CompositeFrame id="" created="2022-05-30T13:06:30.544315">
+      <frames>
+        <ResourceFrame>
+          <Operator id="OST:Operator:923">
+            <CustomerServiceContactDetails>
+              <Url>https://www.boreal.no/om-boreal/kontakt/hittegods/</Url>
+            </CustomerServiceContactDetails>
+            <CompanyNumber>923</CompanyNumber>
+            <Name>Boreal</Name>
+          </Operator>
+          <Operator id="OST:Operator:156">
+            <CustomerServiceContactDetails>
+              <Url>https://www.mb24.no/</Url>
+            </CustomerServiceContactDetails>
+            <CompanyNumber>156</CompanyNumber>
+            <Name>Minibuss 24/7</Name>
+          </Operator>
+          <Operator id="OST:Operator:155">
+            <CustomerServiceContactDetails>
+              <Url>https://www.fredrikstad.kommune.no/tjenester/Vann-vei-trafikk/byfergene/</Url>
+            </CustomerServiceContactDetails>
+            <CompanyNumber>155</CompanyNumber>
+            <Name>Byferga</Name>
+          </Operator>
+          <Operator id="OST:Operator:153">
+            <CustomerServiceContactDetails>
+              <Url>https://hollungen.no/</Url>
+            </CustomerServiceContactDetails>
+            <CompanyNumber>153</CompanyNumber>
+            <Name>Hvalerferga</Name>
+          </Operator>
+          <Operator id="OST:Operator:152">
+            <CustomerServiceContactDetails>
+              <Url>https://www.vy.no/kundeservice/hjelp-og-kontakt</Url>
+            </CustomerServiceContactDetails>
+            <CompanyNumber>152</CompanyNumber>
+            <Name>Vy Buss AS</Name>
+          </Operator>
+          <organizations />
+        </ResourceFrame>
+        <ServiceFrame />
+        <ServiceCalendarFrame />
+      </frames>
+      <FrameDefaults />
+      <codespaces />
+      <validityConditions />
+    </CompositeFrame>
+  </dataObjects>
+</PublicationDelivery>

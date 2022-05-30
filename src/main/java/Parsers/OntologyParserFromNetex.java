@@ -56,7 +56,7 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
     public Resource mapAuthority(Authority authority) {
         String id = authority.getId();
         Resource authority_resource = this.rdfManager.rdf.createResource(Namespaces.CORE+"/Resource/Authority/"+id);
-        this.rdfManager.addType(authority_resource, Namespaces.ORGANISATIONS+"#Authority");
+        this.rdfManager.addType(authority_resource, Namespaces.AUTHORITY_resource);
         authority_resource.addProperty(RDFS.label, id);
         authority_resource.addProperty(SKOS.notation, authority.getCompanyNumber());
         authority_resource.addProperty(SKOS.prefLabel, authority.getName().getValue());
@@ -68,7 +68,7 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
     public Resource mapOperator(Operator operator) {
         String id = operator.getId();
         Resource operator_resource = this.rdfManager.rdf.createResource(Namespaces.ORGANISATIONS+"/Resource/Operator/"+id);
-        this.rdfManager.addType(operator_resource, Namespaces.ORGANISATIONS+"#Operator");
+        this.rdfManager.addType(operator_resource, Namespaces.OPERATOR_resource);
         operator_resource.addProperty(RDFS.label, id);
         operator_resource.addProperty(SKOS.notation, operator.getCompanyNumber());
         operator_resource.addProperty(VCARD4.hasName, operator.getName().getValue());
@@ -83,7 +83,7 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
     public Resource mapServiceLink(ServiceLink serviceLink) {
         String id = serviceLink.getId();
         Resource serviceLink_resource = this.rdfManager.rdf.createResource(Namespaces.JOURNEYS+"/Resource/ServiceLink/"+id);
-        this.rdfManager.addType(serviceLink_resource, Namespaces.JOURNEYS+"#ServiceLink");
+        //this.rdfManager.addType(serviceLink_resource, Namespaces.JOURNEYS+"#ServiceLink");
         serviceLink_resource.addProperty(RDFS.label, id);
 
         AllModesEnumeration mode = serviceLink.getVehicleMode();
@@ -100,7 +100,7 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
     public Resource mapScheduledStopPoint(ScheduledStopPoint scheduledStopPoint) {
         String id = scheduledStopPoint.getId();
         Resource scheduledStopPoint_resource = this.rdfManager.rdf.createResource(Namespaces.JOURNEYS+"/Resource/ScheduledStopPoint/"+id);
-        this.rdfManager.addType(scheduledStopPoint_resource, Namespaces.JOURNEYS+"#ScheduledStopPoint");
+        this.rdfManager.addType(scheduledStopPoint_resource, Namespaces.SCHEDULE_STOP_POINT_resource);
         scheduledStopPoint_resource.addLiteral(SchemaDO.name, scheduledStopPoint.getName().getValue());
 
         return scheduledStopPoint_resource;
@@ -110,7 +110,7 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
     public Resource mapJourneyPattern(JourneyPattern journeyPattern) {
         String id = journeyPattern.getId();
         Resource journeyPattern_resource = this.rdfManager.rdf.createResource(Namespaces.JOURNEYS+"/Resource/ServiceJourneyPattern/"+id);
-        this.rdfManager.addType(journeyPattern_resource, Namespaces.JOURNEYS+"#ServiceJourneyPattern");
+        this.rdfManager.addType(journeyPattern_resource, Namespaces.SERVICE_JOURNEY_PATTERN_resource);
         journeyPattern_resource.addProperty(RDFS.label, id);
         journeyPattern_resource.addProperty(SchemaDO.name, journeyPattern.getName().getValue());
         journeyPattern_resource.addProperty(Namespaces.onRoute, journeyPattern.getRouteRef().getRef());
@@ -130,7 +130,7 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
         String id_point = point.getId();
         Resource stopPointInJourneyPattern = rdfManager.rdf.createResource(Namespaces.JOURNEYS+"/Resource/StopPointsInJourneyPattern/"+id_point);
         journeyPattern_resource.addProperty(Namespaces.journeyPatternMadeUpOf, stopPointInJourneyPattern);
-        rdfManager.addType(stopPointInJourneyPattern, Namespaces.JOURNEYS+"#StopPointsInJourneyPattern");
+        rdfManager.addType(stopPointInJourneyPattern, Namespaces.STOP_POINT_IN_JOURNEY_PATTERN_resource);
 
         Boolean forAlighting = point.isForAlighting();
         if(forAlighting != null)

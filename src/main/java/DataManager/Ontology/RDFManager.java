@@ -86,10 +86,10 @@ public class RDFManager {
         this.rdf.write(System.out);
     }
 
-    public void addType(Resource resource, String uri){
+    public void addType(Resource resource, Resource uri){
         resource.addProperty(
             RDF.type,
-            this.rdf.createResource(uri)
+            uri
         );
     }
 }
