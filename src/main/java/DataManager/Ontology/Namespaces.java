@@ -26,9 +26,15 @@ public class Namespaces {
 
 
     public static final Property onRoute = getProperty(m, Namespaces.JOURNEYS, "#onRoute");
+    public static final Property onLine = getProperty(m, Namespaces.JOURNEYS, "#onLine");
     public static final Property journeyPatternMadeUpOf = getProperty(m, Namespaces.JOURNEYS, "#journeyPatternMadeUpOf");
     public static final Property forAlighting = getProperty(m, Namespaces.JOURNEYS, "#forAlighting");
     public static final Property scheduledStopPoint = getProperty(m, Namespaces.JOURNEYS, "#scheduledStopPoint");
+    public static final Property allowedLineDirections = getProperty(m, Namespaces.JOURNEYS, "#allowedLineDirections");
+    public static final Property madeUpOf = getProperty(m, Namespaces.JOURNEYS, "#madeUpOf");
+    public static final Property order = getProperty(m, Namespaces.JOURNEYS, "#order");
+    public static final Property aViewOf = getProperty(m, Namespaces.JOURNEYS, "#aViewOf");
+    public static final Property hasPointProjection = getProperty(m, Namespaces.JOURNEYS, "#hasPointProjection");
 
 
     public static final Resource AUTHORITY_resource = m.createResource(Namespaces.ORGANISATIONS + "#Authority");
@@ -36,6 +42,9 @@ public class Namespaces {
     public static final Resource SCHEDULE_STOP_POINT_resource = m.createResource(Namespaces.JOURNEYS+"#ScheduledStopPoint");
     public static final Resource SERVICE_JOURNEY_PATTERN_resource = m.createResource(Namespaces.JOURNEYS+"#ServiceJourneyPattern");
     public static final Resource STOP_POINT_IN_JOURNEY_PATTERN_resource = m.createResource(Namespaces.JOURNEYS+"#StopPointsInJourneyPattern");
+    public static final Resource ROUTE_resource = m.createResource(Namespaces.JOURNEYS+"#Route");
+    public static final Resource POINT_ON_ROUTE_resource = m.createResource(Namespaces.COMMONS+"#PointOnRoute");
+    public static final Resource ROUTE_POINT_resource = m.createResource(Namespaces.JOURNEYS+"#RoutePoint");
 
     public Namespaces() {
     }

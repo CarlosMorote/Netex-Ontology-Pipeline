@@ -2,7 +2,7 @@
 <PublicationDelivery xmlns="http://www.netex.org.uk/netex" xmlns:gis="http://www.opengis.net/gml/3.2" xmlns:siri="http://www.siri.org.uk/siri">
   <Description xmlns="">Shared data used across line files</Description>
   <dataObjects xmlns="">
-    <CompositeFrame id="" created="2022-05-30T17:06:05.754608">
+    <CompositeFrame id="" created="2022-05-31T12:06:06.844159">
       <frames>
         <ResourceFrame>
           <Operator id="OST:Operator:923">

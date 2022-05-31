@@ -23,7 +23,7 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
         this.rdfManager = RDFManager;
         this.netexManager = netexManager;
         this.classesToCast = new String[]{
-                "Authority", "Operator", "ScheduledStopPoint", "JourneyPattern"
+                "Authority", "Operator", "ScheduledStopPoint", "JourneyPattern","RoutePoint", "Route", "Line"
         };
     }
 
@@ -94,7 +94,7 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
         this.rdfManager.addType(journeyPattern_resource, Namespaces.SERVICE_JOURNEY_PATTERN_resource);
         journeyPattern_resource.addProperty(RDFS.label, id);
         journeyPattern_resource.addProperty(SchemaDO.name, journeyPattern.getName().getValue());
-        journeyPattern_resource.addProperty(Namespaces.onRoute, journeyPattern.getRouteRef().getRef());
+        journeyPattern_resource.addProperty(Namespaces.onRoute, Namespaces.JOURNEYS+"/Resource/Route/"+journeyPattern.getRouteRef().getRef());
 
         journeyPattern.getPointsInSequence()
                 .getPointInJourneyPatternOrStopPointInJourneyPatternOrTimingPointInJourneyPattern()
@@ -109,25 +109,74 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
     @Override
     public Resource mapStopPointInJourneyPattern(StopPointInJourneyPattern point, Resource journeyPattern_resource) {
         String id_point = point.getId();
-        Resource stopPointInJourneyPattern = rdfManager.rdf.createResource(Namespaces.JOURNEYS+"/Resource/StopPointsInJourneyPattern/"+id_point);
-        journeyPattern_resource.addProperty(Namespaces.journeyPatternMadeUpOf, stopPointInJourneyPattern);
-        rdfManager.addType(stopPointInJourneyPattern, Namespaces.STOP_POINT_IN_JOURNEY_PATTERN_resource);
+        Resource stopPointInJourneyPattern_resource = rdfManager.rdf.createResource(Namespaces.JOURNEYS+"/Resource/StopPointsInJourneyPattern/"+id_point);
+        journeyPattern_resource.addProperty(Namespaces.journeyPatternMadeUpOf, stopPointInJourneyPattern_resource);
+        rdfManager.addType(stopPointInJourneyPattern_resource, Namespaces.STOP_POINT_IN_JOURNEY_PATTERN_resource);
 
         Boolean forAlighting = point.isForAlighting();
         if(forAlighting != null)
-            stopPointInJourneyPattern.addLiteral(Namespaces.forAlighting, forAlighting);
+            stopPointInJourneyPattern_resource.addLiteral(Namespaces.forAlighting, forAlighting);
 
         JAXBElement<? extends ScheduledStopPointRefStructure> scheduledStopPoint = point.getScheduledStopPointRef();
         if(scheduledStopPoint != null){
             Resource stop_resource = this.rdfManager.rdf.getResource(Namespaces.JOURNEYS+"/Resource/ScheduledStopPoint/"+id_point);
-            stopPointInJourneyPattern.addProperty(Namespaces.scheduledStopPoint, stop_resource);
+            stopPointInJourneyPattern_resource.addProperty(Namespaces.scheduledStopPoint, stop_resource);
         }
 
-        return stopPointInJourneyPattern;
+        return stopPointInJourneyPattern_resource;
     }
 
     @Override
     public Resource mapRoute(Route route) {
+        String id_route = route.getId();
+        Resource route_resource = rdfManager.rdf.createResource(Namespaces.JOURNEYS+"/Resource/Route/"+id_route);
+        rdfManager.addType(route_resource, Namespaces.ROUTE_resource);
+        route_resource.addProperty(RDFS.label, id_route);
+        route_resource.addProperty(SchemaDO.name, route.getName().getValue());
+        route_resource.addProperty(SchemaDO.additionalName, route.getShortName().getValue());
+        route_resource.addProperty(Namespaces.onLine, Namespaces.JOURNEYS+"/Resource/Line/"+route.getLineRef().getValue().getRef());
+        route_resource.addProperty(Namespaces.allowedLineDirections, route.getDirectionType().value());
+
+        route.getPointsInSequence().getPointOnRoute().forEach(
+                (pointOnRoute) -> {
+                    String id_pointOnRoute = pointOnRoute.getId();
+                    Resource pointOnRoute_resource = rdfManager.rdf.createResource(Namespaces.JOURNEYS+"/Resource/PointOnRoute/"+id_pointOnRoute);
+                    rdfManager.addType(pointOnRoute_resource, Namespaces.POINT_ON_ROUTE_resource);
+                    pointOnRoute_resource.addProperty(RDFS.label, id_pointOnRoute);
+                    pointOnRoute_resource.addLiteral(Namespaces.order, pointOnRoute.getOrder());
+                    pointOnRoute_resource.addProperty(Namespaces.madeUpOf, route_resource);
+
+                    String id_routePoint = pointOnRoute.getPointRef().getValue().getRef();
+                    //Resource routePoint_resource = rdfManager.rdf.createResource(Namespaces.JOURNEYS+"/Resource/RoutePoint/"+id_routePoint);
+                    //rdfManager.addType(routePoint_resource, Namespaces.ROUTE_POINT_resource);
+                    //routePoint_resource.addProperty(RDFS.label, id_routePoint);
+                    Resource routePoint_resource = rdfManager.rdf.getResource(Namespaces.JOURNEYS+"/Resource/RoutePoint/"+id_routePoint);
+                    routePoint_resource.addProperty(Namespaces.aViewOf, pointOnRoute_resource);
+                }
+        );
+
+        return route_resource;
+    }
+
+    @Override
+    public Resource mapRoutePoint(RoutePoint routePoint) {
+        String id_routePoint = routePoint.getId();
+        Resource routePoint_resource = rdfManager.rdf.createResource(Namespaces.JOURNEYS+"/Resource/RoutePoint/"+id_routePoint);
+        rdfManager.addType(routePoint_resource, Namespaces.ROUTE_POINT_resource);
+        routePoint_resource.addProperty(RDFS.label, id_routePoint);
+
+        PointProjection projections = (PointProjection) routePoint.getProjections().getProjectionRefOrProjection().get(0).getValue();
+        routePoint_resource.addProperty(Namespaces.hasPointProjection, projections.getId());
+        routePoint_resource.addProperty(
+                Namespaces.scheduledStopPoint,
+                projections.getProjectedPointRef().getRef()
+        );
+
+        return routePoint_resource;
+    }
+
+    @Override
+    public Resource mapLine(Line line) {
         return null;
     }
 }

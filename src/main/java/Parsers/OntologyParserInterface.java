@@ -13,5 +13,7 @@ public interface OntologyParserInterface {
     Resource mapJourneyPattern(JourneyPattern journeyPattern);
     Resource mapStopPointInJourneyPattern(StopPointInJourneyPattern point, Resource journeyPattern_resource);
     Resource mapRoute(Route route);
+    Resource mapRoutePoint(RoutePoint routePoint);
+    Resource mapLine(Line line);
 
 }
