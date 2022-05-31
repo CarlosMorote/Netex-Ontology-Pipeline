@@ -59,7 +59,7 @@ public class NetexParserFromRDF {
         Element frames = new Element("frames");
         Element ResourceFrame = new Element("ResourceFrame");
         mapOrganizations(ResourceFrame);
-        Element ServiceFrame = new Element("ServiceFrame"); //SEGUIR POR AQUÍ
+        Element ServiceFrame = new Element("ServiceFrame");
         Element ServiceCalendarFrame = new Element("ServiceCalendarFrame");
 
         frames.addContent(ResourceFrame);
@@ -82,6 +82,7 @@ public class NetexParserFromRDF {
     private Element mapOrganizations(Element current){
         Element organizations = new Element("organizations");
 
+        // Operator
         StmtIterator itera = rdf.listStatements(null, RDF.type, Namespaces.OPERATOR_resource);
         Resource currentResource;
         while(itera.hasNext()){
@@ -101,11 +102,37 @@ public class NetexParserFromRDF {
             url.setText(currentResource.getProperty(VCARD4.hasURL).getObject().toString());
             customerServiceContactDetails.addContent(url);
 
+            Element organisationType = new Element("OrganisationType");
+            organisationType.setText("operator");
+            operator.addContent(organisationType);
+
             operator.addContent(customerServiceContactDetails);
             operator.addContent(compNum);
             operator.addContent(name);
 
             current.addContent(operator);
+        }
+
+        itera = rdf.listStatements(null, RDF.type, Namespaces.AUTHORITY_resource);
+        while(itera.hasNext()){
+            currentResource = rdf.getResource(itera.nextStatement().getSubject().toString());
+
+            Element authority = new Element("Authority");
+            authority.setAttribute("id", currentResource.getProperty(RDFS.label).getObject().toString());
+
+            Element name = new Element("Name");
+            name.setText(currentResource.getProperty(SKOS.prefLabel).getObject().toString());
+            authority.addContent(name);
+
+            Element companyNumber = new Element("CompanyNumber");
+            companyNumber.setText(currentResource.getProperty(SKOS.notation).getObject().toString());
+            authority.addContent(companyNumber);
+
+            Element organisationType = new Element("OrganisationType");
+            organisationType.setText("authority");
+            authority.addContent(organisationType);
+
+            current.addContent(authority);
         }
 
         current.addContent(organizations);

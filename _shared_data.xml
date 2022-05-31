@@ -2,10 +2,11 @@
 <PublicationDelivery xmlns="http://www.netex.org.uk/netex" xmlns:gis="http://www.opengis.net/gml/3.2" xmlns:siri="http://www.siri.org.uk/siri">
   <Description xmlns="">Shared data used across line files</Description>
   <dataObjects xmlns="">
-    <CompositeFrame id="" created="2022-05-31T12:06:06.844159">
+    <CompositeFrame id="" created="2022-05-31T16:30:20.574126">
       <frames>
         <ResourceFrame>
           <Operator id="OST:Operator:923">
+            <OrganisationType>operator</OrganisationType>
             <CustomerServiceContactDetails>
               <Url>https://www.boreal.no/om-boreal/kontakt/hittegods/</Url>
             </CustomerServiceContactDetails>
@@ -13,6 +14,7 @@
             <Name>Boreal</Name>
           </Operator>
           <Operator id="OST:Operator:156">
+            <OrganisationType>operator</OrganisationType>
             <CustomerServiceContactDetails>
               <Url>https://www.mb24.no/</Url>
             </CustomerServiceContactDetails>
@@ -20,6 +22,7 @@
             <Name>Minibuss 24/7</Name>
           </Operator>
           <Operator id="OST:Operator:155">
+            <OrganisationType>operator</OrganisationType>
             <CustomerServiceContactDetails>
               <Url>https://www.fredrikstad.kommune.no/tjenester/Vann-vei-trafikk/byfergene/</Url>
             </CustomerServiceContactDetails>
@@ -27,6 +30,7 @@
             <Name>Byferga</Name>
           </Operator>
           <Operator id="OST:Operator:153">
+            <OrganisationType>operator</OrganisationType>
             <CustomerServiceContactDetails>
               <Url>https://hollungen.no/</Url>
             </CustomerServiceContactDetails>
@@ -34,12 +38,18 @@
             <Name>Hvalerferga</Name>
           </Operator>
           <Operator id="OST:Operator:152">
+            <OrganisationType>operator</OrganisationType>
             <CustomerServiceContactDetails>
               <Url>https://www.vy.no/kundeservice/hjelp-og-kontakt</Url>
             </CustomerServiceContactDetails>
             <CompanyNumber>152</CompanyNumber>
             <Name>Vy Buss AS</Name>
           </Operator>
+          <Authority id="OST:Authority:1">
+            <Name>Østfold kollektivtrafikk</Name>
+            <CompanyNumber>984582021</CompanyNumber>
+            <OrganisationType>authority</OrganisationType>
+          </Authority>
           <organizations />
         </ResourceFrame>
         <ServiceFrame />

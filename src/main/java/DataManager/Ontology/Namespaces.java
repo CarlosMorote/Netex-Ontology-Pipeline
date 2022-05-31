@@ -35,6 +35,10 @@ public class Namespaces {
     public static final Property order = getProperty(m, Namespaces.JOURNEYS, "#order");
     public static final Property aViewOf = getProperty(m, Namespaces.JOURNEYS, "#aViewOf");
     public static final Property hasPointProjection = getProperty(m, Namespaces.JOURNEYS, "#hasPointProjection");
+    public static final Property hasTransportMode = getProperty(m, Namespaces.JOURNEYS, "#hasTransportMode");
+    public static final Property hasPublicCode = getProperty(m, Namespaces.JOURNEYS, "#hasPublicCode");
+    public static final Property hasPrivateCode = getProperty(m, Namespaces.JOURNEYS, "#hasPrivateCode");
+    public static final Property runBy = getProperty(m, Namespaces.JOURNEYS, "#runBy");
 
 
     public static final Resource AUTHORITY_resource = m.createResource(Namespaces.ORGANISATIONS + "#Authority");
@@ -45,6 +49,7 @@ public class Namespaces {
     public static final Resource ROUTE_resource = m.createResource(Namespaces.JOURNEYS+"#Route");
     public static final Resource POINT_ON_ROUTE_resource = m.createResource(Namespaces.COMMONS+"#PointOnRoute");
     public static final Resource ROUTE_POINT_resource = m.createResource(Namespaces.JOURNEYS+"#RoutePoint");
+    public static final Resource LINE_resource = m.createResource(Namespaces.JOURNEYS+"#Line");
 
     public Namespaces() {
     }

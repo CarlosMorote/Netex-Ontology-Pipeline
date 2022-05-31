@@ -177,7 +177,23 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
 
     @Override
     public Resource mapLine(Line line) {
-        return null;
+        String id_line = line.getId();
+        Resource line_resource = rdfManager.rdf.createResource(Namespaces.JOURNEYS+"/Resource/Line/"+id_line);
+        rdfManager.addType(line_resource, Namespaces.LINE_resource);
+        line_resource.addProperty(RDFS.label, id_line);
+        line_resource.addProperty(SchemaDO.name, line.getName().getValue());
+        line_resource.addProperty(Namespaces.hasTransportMode, line.getTransportMode().value());
+        line_resource.addProperty(Namespaces.hasPublicCode, line.getPublicCode());
+        line_resource.addProperty(Namespaces.hasPrivateCode, line.getPrivateCode().getValue());
+
+        OperatorRefStructure op = line.getOperatorRef();
+        if(op != null)
+            line_resource.addProperty(
+                    Namespaces.runBy,
+                    rdfManager.rdf.getResource(Namespaces.ORGANISATIONS+"/Resource/Operator/"+op.getRef())
+            );
+
+        return line_resource;
     }
 }
 
