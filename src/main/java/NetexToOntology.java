@@ -18,8 +18,6 @@ public class NetexToOntology {
         OntologyParserFromNetex ontologyParser = new OntologyParserFromNetex(rdfManager, netexManager);
 
         //ontologyParser.castNetexToOntology();
-
-        //rdfManager.printRDF();
         //rdfManager.saveRDF("Turtle");
 
         // ---------------------------------

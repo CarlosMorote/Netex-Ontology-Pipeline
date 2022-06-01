@@ -153,7 +153,7 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
                     Resource pointOnRoute_resource = rdfManager.rdf.createResource(Namespaces.JOURNEYS+"/Resource/PointOnRoute/"+id_pointOnRoute);
                     rdfManager.addType(pointOnRoute_resource, Namespaces.POINT_ON_ROUTE_resource);
                     pointOnRoute_resource.addProperty(RDFS.label, id_pointOnRoute);
-                    pointOnRoute_resource.addLiteral(Namespaces.order, pointOnRoute.getOrder());
+                    pointOnRoute_resource.addProperty(Namespaces.order, pointOnRoute.getOrder().toString());
                     pointOnRoute_resource.addProperty(Namespaces.madeUpOf, route_resource);
 
                     String id_routePoint = pointOnRoute.getPointRef().getValue().getRef();
