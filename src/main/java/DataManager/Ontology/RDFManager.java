@@ -73,6 +73,7 @@ public class RDFManager {
             out = new FileWriter(output);
             this.rdf.write(out, format);
             out.close();
+            System.out.println("LinkedData generated. File in "+output);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
