@@ -10,6 +10,7 @@ import org.rutebanken.netex.model.*;
 import javax.xml.bind.JAXBElement;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class OntologyParserFromNetex implements OntologyParserInterface {
@@ -82,7 +83,16 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
         String id = scheduledStopPoint.getId();
         Resource scheduledStopPoint_resource = this.rdfManager.rdf.createResource(Namespaces.JOURNEYS+"/Resource/ScheduledStopPoint/"+id);
         this.rdfManager.addType(scheduledStopPoint_resource, Namespaces.SCHEDULE_STOP_POINT_resource);
+        scheduledStopPoint_resource.addProperty(RDFS.label, id);
         scheduledStopPoint_resource.addLiteral(SchemaDO.name, scheduledStopPoint.getName().getValue());
+
+        List<ValidBetween> validity = scheduledStopPoint.getValidBetween();
+        if(!validity.isEmpty()){
+            for(ValidBetween v: validity){
+                if(v.getFromDate() != null)
+                    scheduledStopPoint_resource.addLiteral(Namespaces.hasValidity, v.getFromDate().toString());
+            }
+        }
 
         return scheduledStopPoint_resource;
     }

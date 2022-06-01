@@ -8,10 +8,7 @@ import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.rdf.model.impl.StatementImpl;
 import org.apache.jena.riot.RDFDataMgr;
-import org.apache.jena.vocabulary.RDF;
-import org.apache.jena.vocabulary.RDFS;
-import org.apache.jena.vocabulary.SKOS;
-import org.apache.jena.vocabulary.VCARD4;
+import org.apache.jena.vocabulary.*;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.output.Format;
@@ -60,6 +57,7 @@ public class NetexParserFromRDF {
         Element ResourceFrame = new Element("ResourceFrame");
         mapOrganizations(ResourceFrame);
         Element ServiceFrame = new Element("ServiceFrame");
+        mapScheduleStopPoints(ServiceFrame);
         Element ServiceCalendarFrame = new Element("ServiceCalendarFrame");
 
         frames.addContent(ResourceFrame);
@@ -113,6 +111,7 @@ public class NetexParserFromRDF {
             current.addContent(operator);
         }
 
+        // Authority
         itera = rdf.listStatements(null, RDF.type, Namespaces.AUTHORITY_resource);
         while(itera.hasNext()){
             currentResource = rdf.getResource(itera.nextStatement().getSubject().toString());
@@ -136,6 +135,50 @@ public class NetexParserFromRDF {
         }
 
         current.addContent(organizations);
+        System.out.println("Organizations mapped");
+
+        return current;
+    }
+
+    private Element mapScheduleStopPoints(Element current){
+        Element scheduledStopPoints = new Element("scheduledStopPoints");
+
+        StmtIterator iterator = rdf.listStatements(null, RDF.type, Namespaces.SCHEDULE_STOP_POINT_resource);
+        Resource currentResource;
+        while(iterator.hasNext()){
+            currentResource = rdf.getResource(iterator.nextStatement().getSubject().toString());
+
+            Element ScheduledStopPoint = new Element("ScheduledStopPoint");
+            String id = currentResource.getProperty(RDFS.label).getObject().toString();
+            ScheduledStopPoint.setAttribute("id", id);
+
+            Element name = new Element("Name");
+            name.setText(currentResource.getProperty(SchemaDO.name).getObject().toString());
+            ScheduledStopPoint.addContent(name);
+
+            Element ValidityBetween = new Element("ValidityBetween");
+            StmtIterator from_iterator = rdf.listStatements(
+                    rdf.createResource(Namespaces.JOURNEYS+"/Resource/ScheduledStopPoint/"+id),
+                    Namespaces.hasValidity,
+                    (String) null
+            );
+            Resource currentResource_2;
+            while(from_iterator.hasNext()){
+                currentResource_2 = rdf.getResource(from_iterator.nextStatement().getSubject().toString());
+
+                Element FromDate = new Element("FromDate");
+                FromDate.setText(currentResource_2.getProperty(Namespaces.hasValidity).getObject().toString());
+
+                ValidityBetween.addContent(FromDate);
+            }
+
+            ScheduledStopPoint.addContent(ValidityBetween);
+            scheduledStopPoints.addContent(ScheduledStopPoint);
+        }
+
+        current.addContent(scheduledStopPoints);
+
+        System.out.println("ScheduleStopPoints");
 
         return current;
     }
