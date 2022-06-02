@@ -219,8 +219,24 @@ public class shared_data_XML {
     }
 
     private Element mapDestinadionDisplays(Element current){
+        Element destinationDisplays = new Element("destinationDisplay");
 
+        StmtIterator iterator = rdf.listStatements(null, RDF.type, Namespaces.DESTINATION_DISPLAY_resource);
+        Resource currentResource;
+        while(iterator.hasNext()){
+            currentResource = rdf.getResource(iterator.nextStatement().getSubject().toString());
 
+            Element DestinationDisplay = new Element("DestinationDisplay");
+            DestinationDisplay.setAttribute("id", currentResource.getProperty(RDFS.label).getObject().toString());
+
+            Element FrontText = new Element("FrontText");
+            FrontText.setText(currentResource.getProperty(Namespaces.frontText).getObject().toString());
+
+            DestinationDisplay.addContent(FrontText);
+            destinationDisplays.addContent(DestinationDisplay);
+        }
+
+        current.addContent(destinationDisplays);
         return current;
     }
 }
