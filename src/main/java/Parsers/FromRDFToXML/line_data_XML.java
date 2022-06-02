@@ -3,8 +3,8 @@ package Parsers.FromRDFToXML;
 import DataManager.Ontology.Namespaces;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
-import org.apache.jena.vocabulary.DCTerms;
 import org.apache.jena.vocabulary.RDFS;
 import org.apache.jena.vocabulary.SchemaDO;
 import org.jdom2.Document;
@@ -80,7 +80,6 @@ public class line_data_XML {
         mapJourneyPattern(ServiceFrame);
 
         current.addContent(ServiceFrame);
-        System.out.println("ServiceFrame mapped");
         return current;
     }
 
@@ -138,11 +137,50 @@ public class line_data_XML {
         }
 
         current.addContent(routes);
-        System.out.println("Routes mapped");
         return current;
     }
 
     private Element mapLines(Element current){
+        Element lines = new Element("lines");
+
+        Element Line = new Element("Line");
+        Line.setAttribute("id", line_resource.getProperty(RDFS.label).getObject().toString());
+
+        Element Name = new Element("Name");
+        Name.setText(line_resource.getProperty(SchemaDO.name).getObject().toString());
+        Line.addContent(Name);
+
+        Element TransportMode = new Element("TransportMode");
+        TransportMode.setText(line_resource.getProperty(Namespaces.hasTransportMode).getObject().toString());
+        Line.addContent(TransportMode);
+
+        Element PublicCode = new Element("PublicCode");
+        PublicCode.setText(line_resource.getProperty(Namespaces.hasPublicCode).getObject().toString());
+        Line.addContent(PublicCode);
+
+        Element PrivateCode = new Element("PrivateCode");
+        PrivateCode.setText(line_resource.getProperty(Namespaces.hasPrivateCode).getObject().toString());
+        Line.addContent(PrivateCode);
+
+        Statement runBy = line_resource.getProperty(Namespaces.runBy);
+        if(runBy != null){
+            Element OperatorRef = new Element("OperatorRef");
+            OperatorRef.setAttribute("ref",
+                    runBy.getProperty(RDFS.label).getObject().toString()
+            );
+            Line.addContent(OperatorRef);
+        }
+
+        Statement representedGroup = line_resource.getProperty(Namespaces.representedByGroup);
+        if(representedGroup != null){
+            Element RepresentedByGroupRef = new Element("RepresentedByGroupRef");
+            RepresentedByGroupRef.setAttribute("ref",
+                    representedGroup.getProperty(RDFS.label).getObject().toString());
+            Line.addContent(RepresentedByGroupRef);
+        }
+
+        lines.addContent(Line);
+        current.addContent(lines);
         return current;
     }
 

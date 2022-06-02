@@ -60,7 +60,7 @@ public class NetexParserFromRDF {
 
     public void parse(){
         try {
-            //generate_sharedData();
+            generate_sharedData();
             generate_LinesData();
         } catch (IOException e) {
             throw new RuntimeException(e);

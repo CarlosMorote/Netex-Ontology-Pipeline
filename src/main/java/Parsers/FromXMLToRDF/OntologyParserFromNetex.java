@@ -203,6 +203,16 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
                     rdfManager.rdf.getResource(Namespaces.ORGANISATIONS+"/Resource/Operator/"+op.getRef())
             );
 
+        GroupOfLinesRefStructure group = line.getRepresentedByGroupRef();
+        if(group != null){
+            Resource group_resource = rdfManager.rdf.createResource(Namespaces.COMMONS+"/Resource/GroupOfLines/"+group.getRef());
+            group_resource.addProperty(RDFS.label, group.getRef());
+            line_resource.addProperty(
+                    Namespaces.representedByGroup,
+                    group_resource
+            );
+        }
+
         return line_resource;
     }
 }

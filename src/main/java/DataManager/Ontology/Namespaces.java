@@ -40,6 +40,7 @@ public class Namespaces {
     public static final Property hasPrivateCode = getProperty(m, Namespaces.JOURNEYS, "#hasPrivateCode");
     public static final Property runBy = getProperty(m, Namespaces.JOURNEYS, "#runBy");
     public static final Property hasValidity = getProperty(m, Namespaces.JOURNEYS, "#hasValidity");
+    public static final Property representedByGroup = getProperty(m, Namespaces.JOURNEYS, "representedByGroup");
 
 
     public static final Resource AUTHORITY_resource = m.createResource(Namespaces.ORGANISATIONS + "#Authority");
