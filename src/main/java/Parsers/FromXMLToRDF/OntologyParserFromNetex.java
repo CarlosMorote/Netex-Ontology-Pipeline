@@ -112,6 +112,12 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
                     mapStopPointInJourneyPattern((StopPointInJourneyPattern) point, journeyPattern_resource);
                 });
 
+        journeyPattern.getLinksInSequence()
+                .getServiceLinkInJourneyPatternOrTimingLinkInJourneyPattern()
+                .forEach((link) -> {
+                    mapServiceLinkInJourneyPattern((ServiceLinkInJourneyPattern_VersionedChildStructure) link, journeyPattern_resource);
+                });
+
 
         return journeyPattern_resource;
     }
@@ -148,6 +154,22 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
         }
 
         return stopPointInJourneyPattern_resource;
+    }
+
+    @Override
+    public Resource mapServiceLinkInJourneyPattern(ServiceLinkInJourneyPattern_VersionedChildStructure link, Resource journeyPattern_resource) {
+        String link_id = link.getId();
+        Resource link_resource = rdfManager.rdf.createResource(Namespaces.JOURNEYS + "/Resource/ServiceLink/"+link_id);
+        link_resource.addProperty(RDFS.label, link_id);
+        rdfManager.addType(link_resource, Namespaces.LINK_SEQUENCE_resource);
+        link_resource.addProperty(Namespaces.order, link.getOrder().toString());
+
+        // TODO: TERMINAR DE PARSEAR EL POINT IN LINK
+        //Resource point_resource = rdfManager.rdf.createResource(Namespaces);
+
+        journeyPattern_resource.addProperty(Namespaces.hasLinkSequence, link_resource);
+
+        return link_resource;
     }
 
     @Override

@@ -244,6 +244,9 @@ public class line_data_XML {
 
             //linksInSequence TODO
             Element linksInSequence = new Element("linksInSequence");
+
+            //StmtIterator links = rdf.listStatements(journey_resource, Namespaces.journeyPatternMadeUpOf, (Resource) null);
+
             JourneyPattern.addContent(linksInSequence);
 
             journeyPatterns.addContent(JourneyPattern);
