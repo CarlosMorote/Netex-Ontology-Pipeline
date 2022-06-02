@@ -58,6 +58,7 @@ public class shared_data_XML {
         Element ServiceFrame = new Element("ServiceFrame");
         mapScheduleStopPoints(ServiceFrame);
         mapRoutePoints(ServiceFrame);
+        mapDestinadionDisplays(ServiceFrame);
 
         Element ServiceCalendarFrame = new Element("ServiceCalendarFrame");
 
@@ -216,4 +217,29 @@ public class shared_data_XML {
         System.out.println("RoutePoints mapped");
         return current;
     }
+
+    private Element mapDestinadionDisplays(Element current){
+
+
+        return current;
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

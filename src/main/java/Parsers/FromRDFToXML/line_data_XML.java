@@ -10,6 +10,7 @@ import org.apache.jena.vocabulary.SchemaDO;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
+import org.onebusaway.gtfs.model.Stop;
 
 import java.time.LocalDateTime;
 
@@ -185,6 +186,70 @@ public class line_data_XML {
     }
 
     private Element mapJourneyPattern(Element current){
+        Element journeyPatterns = new Element("journeyPatterns");
+
+        StmtIterator routes = rdf.listStatements(null, Namespaces.onLine, line_resource.getURI());
+        Resource route;
+        while(routes.hasNext()){
+            route = routes.nextStatement().getSubject();
+
+            Element JourneyPattern = new Element("JourneyPattern");
+            Resource journey_resource = rdf.listStatements(null, Namespaces.onRoute, route.getURI()).nextStatement().getSubject();
+            JourneyPattern.setAttribute("ref", journey_resource.getProperty(RDFS.label).getObject().toString());
+
+            Element Name = new Element("Name");
+            Name.setText(journey_resource.getProperty(SchemaDO.name).getObject().toString());
+            JourneyPattern.addContent(Name);
+
+            Element RouteRef = new Element("RouteRef");
+            RouteRef.setAttribute("ref", route.getProperty(RDFS.label).getObject().toString());
+            JourneyPattern.addContent(RouteRef);
+
+            //pointsInSequence
+            Element pointsInSequence = new Element("pointsInSequence");
+
+            StmtIterator points = rdf.listStatements(journey_resource, Namespaces.journeyPatternMadeUpOf, (Resource) null);
+            while(points.hasNext()){
+                Resource point_resource = rdf.getResource(points.nextStatement().getObject().toString());
+                Element StopPointInJourneyPattern = new Element("StopPointInJourneyPattern");
+                StopPointInJourneyPattern.setAttribute("order", point_resource.getProperty(Namespaces.order).getObject().toString());
+                StopPointInJourneyPattern.setAttribute("id", point_resource.getProperty(RDFS.label).getObject().toString());
+
+                Element ScheduledStopPointRef = new Element("ScheduledStopPointRef");
+                ScheduledStopPointRef.setAttribute("ref",
+                        ((Resource) point_resource.getProperty(Namespaces.scheduledStopPoint).getObject()).getProperty(RDFS.label).getObject().toString()
+                );
+
+                Statement forAlighting_statement = point_resource.getProperty(Namespaces.forAlighting);
+                if(forAlighting_statement != null){
+                    Element ForAlighting = new Element("ForAlighting");
+                    ForAlighting.setText(forAlighting_statement.getObject().toString());
+                    StopPointInJourneyPattern.addContent(ForAlighting);
+                }
+
+                Statement destinationDisplayRef_statement = point_resource.getProperty(Namespaces.hasDestinationDisplay);
+                if(destinationDisplayRef_statement != null){
+                    Element DestinationDisplayRef = new Element("DestinationDisplayRef");
+                    DestinationDisplayRef.setAttribute("ref",
+                            ((Resource)destinationDisplayRef_statement.getObject()).getProperty(RDFS.label).getObject().toString()
+                    );
+                    StopPointInJourneyPattern.addContent(DestinationDisplayRef);
+                }
+
+                StopPointInJourneyPattern.addContent(ScheduledStopPointRef);
+                pointsInSequence.addContent(StopPointInJourneyPattern);
+            }
+
+            JourneyPattern.addContent(pointsInSequence);
+
+            //linksInSequence TODO
+            Element linksInSequence = new Element("linksInSequence");
+            JourneyPattern.addContent(linksInSequence);
+
+            journeyPatterns.addContent(JourneyPattern);
+        }
+
+        current.addContent(journeyPatterns);
         return current;
     }
 }
