@@ -28,6 +28,14 @@ public class shared_data_XML {
         root.addNamespaceDeclaration(Namespace.getNamespace("gis", "http://www.opengis.net/gml/3.2"));
         root.addNamespaceDeclaration(Namespace.getNamespace("siri", "http://www.siri.org.uk/siri"));
 
+        Element PublicationTimestamp = new Element("PublicationTimestamp");
+        PublicationTimestamp.setText(LocalDateTime.now().toString());
+        root.addContent(PublicationTimestamp);
+
+        Element ParticipantRef = new Element("ParticipantRef");
+        ParticipantRef.setText("RB");
+        root.addContent(ParticipantRef);
+
         //Description
         Element description = new Element("Description");
         description.setText("Shared data used across line files");
@@ -45,6 +53,7 @@ public class shared_data_XML {
         Element CompositeFrame = new Element("CompositeFrame");
         CompositeFrame.setAttribute("id", "");
         CompositeFrame.setAttribute("created", LocalDateTime.now().toString());
+        CompositeFrame.setAttribute("version", "1");
 
         Element validityConditions = new Element("validityConditions");
 

@@ -11,9 +11,12 @@ import org.jdom2.Document;
 import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 public class NetexParserFromRDF {
 
@@ -62,8 +65,32 @@ public class NetexParserFromRDF {
         try {
             generate_sharedData();
             generate_LinesData();
+            zip_files();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private void zip_files() throws IOException {
+        List<String> srcFiles = Arrays.stream((new File(this.out_path).list()))
+                .filter(file -> !(file.toUpperCase().contains("DS_STORE") | file.contains(".ttl")))
+                .collect(Collectors.toList());
+        FileOutputStream fos = new FileOutputStream("output.zip");
+        ZipOutputStream zipOut = new ZipOutputStream(fos);
+        for (String srcFile : srcFiles) {
+            File fileToZip = new File(this.out_path+srcFile);
+            FileInputStream fis = new FileInputStream(fileToZip);
+            ZipEntry zipEntry = new ZipEntry(fileToZip.getName());
+            zipOut.putNextEntry(zipEntry);
+
+            byte[] bytes = new byte[1024];
+            int length;
+            while((length = fis.read(bytes)) >= 0) {
+                zipOut.write(bytes, 0, length);
+            }
+            fis.close();
+        }
+        zipOut.close();
+        fos.close();
     }
 }
