@@ -28,16 +28,18 @@ public class shared_data_XML {
         root.addNamespaceDeclaration(Namespace.getNamespace("gis", "http://www.opengis.net/gml/3.2"));
         root.addNamespaceDeclaration(Namespace.getNamespace("siri", "http://www.siri.org.uk/siri"));
 
-        Element PublicationTimestamp = new Element("PublicationTimestamp");
+        Namespace ns = root.getNamespace();
+
+        Element PublicationTimestamp = new Element("PublicationTimestamp", ns);
         PublicationTimestamp.setText(LocalDateTime.now().toString());
         root.addContent(PublicationTimestamp);
 
-        Element ParticipantRef = new Element("ParticipantRef");
+        Element ParticipantRef = new Element("ParticipantRef", ns);
         ParticipantRef.setText("RB");
         root.addContent(ParticipantRef);
 
         //Description
-        Element description = new Element("Description");
+        Element description = new Element("Description", ns);
         description.setText("Shared data used across line files");
         root.addContent(description);
 
@@ -48,28 +50,33 @@ public class shared_data_XML {
         initSharedXML();
         Element root = this.xml.getRootElement();
 
-        Element dataObjects = new Element("dataObjects");
+        Namespace ns = root.getNamespace();
 
-        Element CompositeFrame = new Element("CompositeFrame");
+        Element dataObjects = new Element("dataObjects", ns);
+
+        Element CompositeFrame = new Element("CompositeFrame", ns);
         CompositeFrame.setAttribute("id", "");
         CompositeFrame.setAttribute("created", LocalDateTime.now().toString());
         CompositeFrame.setAttribute("version", "1");
 
-        Element validityConditions = new Element("validityConditions");
+        Element validityConditions = new Element("validityConditions", ns);
 
-        Element codespaces = new Element("codespaces");
+        Element codespaces = new Element("codespaces", ns);
 
-        Element FrameDefaults = new Element("FrameDefaults");
+        Element FrameDefaults = new Element("FrameDefaults", ns);
 
-        Element frames = new Element("frames");
-        Element ResourceFrame = new Element("ResourceFrame");
-        mapOrganizations(ResourceFrame);
-        Element ServiceFrame = new Element("ServiceFrame");
-        mapScheduleStopPoints(ServiceFrame);
-        mapRoutePoints(ServiceFrame);
-        mapDestinadionDisplays(ServiceFrame);
+        Element frames = new Element("frames", ns);
+        Element ResourceFrame = new Element("ResourceFrame", ns);
+        ResourceFrame.setAttribute("id", "");
+        mapOrganizations(ResourceFrame, ns);
+        Element ServiceFrame = new Element("ServiceFrame", ns);
+        ServiceFrame.setAttribute("id", "");
+        mapScheduleStopPoints(ServiceFrame, ns);
+        mapRoutePoints(ServiceFrame, ns);
+        mapDestinadionDisplays(ServiceFrame, ns);
 
-        Element ServiceCalendarFrame = new Element("ServiceCalendarFrame");
+        Element ServiceCalendarFrame = new Element("ServiceCalendarFrame", ns);
+        ServiceCalendarFrame.setAttribute("id", "");
 
         frames.addContent(ResourceFrame);
         frames.addContent(ServiceFrame);
@@ -86,8 +93,8 @@ public class shared_data_XML {
         return xml;
     }
 
-    private Element mapOrganizations(Element current){
-        Element organizations = new Element("organizations");
+    private Element mapOrganizations(Element current, Namespace ns){
+        Element organisations = new Element("organisations", ns);
 
         // Operator
         StmtIterator itera = rdf.listStatements(null, RDF.type, Namespaces.OPERATOR_resource);
@@ -95,21 +102,21 @@ public class shared_data_XML {
         while(itera.hasNext()){
             currentResource = rdf.getResource(itera.nextStatement().getSubject().toString());
 
-            Element operator = new Element("Operator");
+            Element operator = new Element("Operator", ns);
             operator.setAttribute("id", currentResource.getProperty(RDFS.label).getObject().toString());
 
-            Element name = new Element("Name");
+            Element name = new Element("Name", ns);
             name.setText(currentResource.getProperty(VCARD4.hasName).getObject().toString());
 
-            Element compNum = new Element("CompanyNumber");
+            Element compNum = new Element("CompanyNumber", ns);
             compNum.setText(currentResource.getProperty(SKOS.notation).getObject().toString());
 
-            Element customerServiceContactDetails = new Element("CustomerServiceContactDetails");
-            Element url = new Element("Url");
+            Element customerServiceContactDetails = new Element("CustomerServiceContactDetails", ns);
+            Element url = new Element("Url", ns);
             url.setText(currentResource.getProperty(VCARD4.hasURL).getObject().toString());
             customerServiceContactDetails.addContent(url);
 
-            Element organisationType = new Element("OrganisationType");
+            Element organisationType = new Element("OrganisationType", ns);
             organisationType.setText("operator");
             operator.addContent(organisationType);
 
@@ -117,7 +124,7 @@ public class shared_data_XML {
             operator.addContent(compNum);
             operator.addContent(name);
 
-            current.addContent(operator);
+            organisations.addContent(operator);
         }
 
         // Authority
@@ -125,47 +132,47 @@ public class shared_data_XML {
         while(itera.hasNext()){
             currentResource = rdf.getResource(itera.nextStatement().getSubject().toString());
 
-            Element authority = new Element("Authority");
+            Element authority = new Element("Authority", ns);
             authority.setAttribute("id", currentResource.getProperty(RDFS.label).getObject().toString());
 
-            Element name = new Element("Name");
+            Element name = new Element("Name", ns);
             name.setText(currentResource.getProperty(SKOS.prefLabel).getObject().toString());
             authority.addContent(name);
 
-            Element companyNumber = new Element("CompanyNumber");
+            Element companyNumber = new Element("CompanyNumber", ns);
             companyNumber.setText(currentResource.getProperty(SKOS.notation).getObject().toString());
             authority.addContent(companyNumber);
 
-            Element organisationType = new Element("OrganisationType");
+            Element organisationType = new Element("OrganisationType", ns);
             organisationType.setText("authority");
             authority.addContent(organisationType);
 
-            current.addContent(authority);
+            organisations.addContent(authority);
         }
 
-        current.addContent(organizations);
+        current.addContent(organisations);
         System.out.println("Organizations mapped");
 
         return current;
     }
 
-    private Element mapScheduleStopPoints(Element current){
-        Element scheduledStopPoints = new Element("scheduledStopPoints");
+    private Element mapScheduleStopPoints(Element current, Namespace ns){
+        Element scheduledStopPoints = new Element("scheduledStopPoints", ns);
 
         StmtIterator iterator = rdf.listStatements(null, RDF.type, Namespaces.SCHEDULE_STOP_POINT_resource);
         Resource currentResource;
         while(iterator.hasNext()){
             currentResource = rdf.getResource(iterator.nextStatement().getSubject().toString());
 
-            Element ScheduledStopPoint = new Element("ScheduledStopPoint");
+            Element ScheduledStopPoint = new Element("ScheduledStopPoint", ns);
             String id = currentResource.getProperty(RDFS.label).getObject().toString();
             ScheduledStopPoint.setAttribute("id", id);
 
-            Element name = new Element("Name");
+            Element name = new Element("Name", ns);
             name.setText(currentResource.getProperty(SchemaDO.name).getObject().toString());
             ScheduledStopPoint.addContent(name);
 
-            Element ValidityBetween = new Element("ValidityBetween");
+            Element ValidityBetween = new Element("ValidityBetween", ns);
             StmtIterator from_iterator = rdf.listStatements(
                     rdf.createResource(Namespaces.JOURNEYS+"/Resource/ScheduledStopPoint/"+id),
                     Namespaces.hasValidity,
@@ -175,7 +182,7 @@ public class shared_data_XML {
             while(from_iterator.hasNext()){
                 currentResource_2 = rdf.getResource(from_iterator.nextStatement().getSubject().toString());
 
-                Element FromDate = new Element("FromDate");
+                Element FromDate = new Element("FromDate", ns);
                 FromDate.setText(currentResource_2.getProperty(Namespaces.hasValidity).getObject().toString());
 
                 ValidityBetween.addContent(FromDate);
@@ -192,25 +199,25 @@ public class shared_data_XML {
         return current;
     }
 
-    private Element mapRoutePoints(Element current){
-        Element routePoints = new Element("routePoints");
+    private Element mapRoutePoints(Element current, Namespace ns){
+        Element routePoints = new Element("routePoints", ns);
 
         StmtIterator iterator = rdf.listStatements(null, RDF.type, Namespaces.ROUTE_POINT_resource);
         Resource currentResource;
         while(iterator.hasNext()){
             currentResource = rdf.getResource(iterator.nextStatement().getSubject().toString());
 
-            Element RoutePoint = new Element("RoutePoint");
+            Element RoutePoint = new Element("RoutePoint", ns);
             RoutePoint.setAttribute("id", currentResource.getProperty(RDFS.label).getObject().toString());
 
-            Element projections = new Element("projections");
-            Element PointProjection = new Element("PointProjection");
+            Element projections = new Element("projections", ns);
+            Element PointProjection = new Element("PointProjection", ns);
             PointProjection.setAttribute(
                     "id",
                     currentResource.getProperty(Namespaces.hasPointProjection).getObject().toString()
             );
 
-            Element ProjectedPointRef = new Element("ProjectedPointRef");
+            Element ProjectedPointRef = new Element("ProjectedPointRef", ns);
             ProjectedPointRef.setAttribute(
                     "id",
                     currentResource.getProperty(Namespaces.scheduledStopPoint).getObject().toString()
@@ -227,18 +234,18 @@ public class shared_data_XML {
         return current;
     }
 
-    private Element mapDestinadionDisplays(Element current){
-        Element destinationDisplays = new Element("destinationDisplay");
+    private Element mapDestinadionDisplays(Element current, Namespace ns){
+        Element destinationDisplays = new Element("destinationDisplays", ns);
 
         StmtIterator iterator = rdf.listStatements(null, RDF.type, Namespaces.DESTINATION_DISPLAY_resource);
         Resource currentResource;
         while(iterator.hasNext()){
             currentResource = rdf.getResource(iterator.nextStatement().getSubject().toString());
 
-            Element DestinationDisplay = new Element("DestinationDisplay");
+            Element DestinationDisplay = new Element("DestinationDisplay", ns);
             DestinationDisplay.setAttribute("id", currentResource.getProperty(RDFS.label).getObject().toString());
 
-            Element FrontText = new Element("FrontText");
+            Element FrontText = new Element("FrontText", ns);
             FrontText.setText(currentResource.getProperty(Namespaces.frontText).getObject().toString());
 
             DestinationDisplay.addContent(FrontText);

@@ -22,10 +22,6 @@ public class NetexManager {
     public NetexManager(String zip_path) {
         NetexParser parser = new NetexParser();
         try {
-            ZipFile zip = new ZipFile(zip_path);
-            FileInputStream io = new FileInputStream(zip_path);
-
-            //List<ZipEntry> files = zip.stream().filter(file -> !(file.getName().contains("DS_Store") || file.getName().contains("MACOSX"))).collect(Collectors.toList());
             this.netex = parser.parse(zip_path);
         } catch (IOException e) {
             throw new RuntimeException(e);

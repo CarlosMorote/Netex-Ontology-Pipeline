@@ -2,6 +2,7 @@ import DataManager.Netex.NetexManager;
 import DataManager.Ontology.RDFManager;
 import Parsers.FromRDFToXML.NetexParserFromRDF;
 import Parsers.FromXMLToRDF.OntologyParserFromNetex;
+import javax.xml.parsers.*;
 
 public class NetexToOntology {
     public static void main(String[] args) {
@@ -25,11 +26,12 @@ public class NetexToOntology {
         String rdfFile = args_1;
         String outPath_Folder = "/Users/carlosmorote/Master local/TFM/GTFS_Ontology_NeTEx/output/";
         NetexParserFromRDF rdfParser = new NetexParserFromRDF(rdfFile, outPath_Folder);
-        //rdfParser.parse();
+        rdfParser.parse();
 
         System.out.println("\nVerificando XML generado");
         try{
-            new NetexManager("/Users/carlosmorote/Master local/TFM/GTFS_Ontology_NeTEx/output.zip");
+            new NetexManager("/Users/carlosmorote/Master local/TFM/GTFS_Ontology_NeTEx/output.netex.zip");
+            //new NetexManager("/Users/carlosmorote/Master local/TFM/GTFS_Ontology_NeTEx/Archivo comprimido.zip");
             System.out.println("XML generado correctamente");
         } catch (Exception ex){
             System.out.println("Errores en el formato NeTEx");

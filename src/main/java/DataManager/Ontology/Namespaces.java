@@ -43,7 +43,7 @@ public class Namespaces {
     public static final Property representedByGroup = getProperty(m, Namespaces.JOURNEYS, "representedByGroup");
     public static final Property hasDestinationDisplay = getProperty(m, Namespaces.COMMONS, "#hasDestinationDisplay");
     public static final Property frontText = getProperty(m, Namespaces.COMMONS, "#frontText");
-    public static final Property hasLinkSequence = getProperty(m, Namespaces.JOURNEYS, "#hasPointsInJourneyPattern"); //No en ontologia
+    public static final Property hasPointsInJourneyPattern = getProperty(m, Namespaces.JOURNEYS, "#hasPointsInJourneyPattern"); //No en ontologia
 
     public static final Resource AUTHORITY_resource = m.createResource(Namespaces.ORGANISATIONS + "#Authority");
     public static final Resource OPERATOR_resource = m.createResource(Namespaces.ORGANISATIONS + "#Operator");

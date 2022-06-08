@@ -167,7 +167,7 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
         // TODO: TERMINAR DE PARSEAR EL POINT IN LINK
         //Resource point_resource = rdfManager.rdf.createResource(Namespaces);
 
-        journeyPattern_resource.addProperty(Namespaces.hasLinkSequence, link_resource);
+        journeyPattern_resource.addProperty(Namespaces.hasPointsInJourneyPattern, link_resource);
 
         return link_resource;
     }
