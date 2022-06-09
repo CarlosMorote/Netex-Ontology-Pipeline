@@ -18,5 +18,6 @@ public interface OntologyParserInterface {
     Resource mapServiceLinkInJourneyPattern(ServiceLinkInJourneyPattern_VersionedChildStructure link, Resource journeyPattern_resource);
     Resource mapServiceJourney(ServiceJourney serviceJourney);
     Resource mapDayType(DayType dayType);
+    Resource mapOperatingPeriod(OperatingPeriod operatingPeriod);
 
 }

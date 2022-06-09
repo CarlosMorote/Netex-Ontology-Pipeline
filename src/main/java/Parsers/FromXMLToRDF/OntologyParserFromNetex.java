@@ -9,7 +9,6 @@ import org.rutebanken.netex.model.*;
 
 import javax.xml.bind.JAXBElement;
 import java.lang.reflect.InvocationTargetException;
-import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.List;
@@ -26,7 +25,7 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
         this.rdfManager = RDFManager;
         this.netexManager = netexManager;
         this.classesToCast = new String[]{
-                "Authority", "Operator", "ScheduledStopPoint", "JourneyPattern","RoutePoint", "Route", "Line", "DayType", "ServiceJourney"
+                "Authority", "Operator", "ScheduledStopPoint", "JourneyPattern","RoutePoint", "Route", "Line", "OperatingPeriod", "DayType", "ServiceJourney"
         };
     }
 
@@ -261,9 +260,9 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
         serviceJourney_resource.addProperty(SchemaDO.name, serviceJourney.getName().getValue());
         serviceJourney_resource.addProperty(Namespaces.hasPrivateCode, serviceJourney.getPrivateCode().getValue());
 
-        /* serviceJourney_resource.addProperty(Namespaces.workedOn,
+        serviceJourney_resource.addProperty(Namespaces.workedOn,
                 rdfManager.rdf.getResource(Namespaces.JOURNEYS+"/Resource/DayType/"+serviceJourney.getDayTypes().getDayTypeRef().get(0).getValue().getRef())
-        ); */
+        );
 
         serviceJourney_resource.addProperty(Namespaces.followsJourneyPattern,
                 rdfManager.rdf.getResource(Namespaces.JOURNEYS+"/Resource/JourneyPattern/"+serviceJourney.getJourneyPatternRef().getValue().getRef())
@@ -294,10 +293,47 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
         return serviceJourney_resource;
     }
 
-    // TODO
+    @Override
+    public Resource mapOperatingPeriod(OperatingPeriod operatingPeriod) {
+        String id_operatingPeriod = operatingPeriod.getId();
+        Resource operatingPeriod_resource = rdfManager.rdf.createResource(Namespaces.JOURNEYS + "/Resource/OperatingPeriod/"+id_operatingPeriod);
+        operatingPeriod_resource.addProperty(RDF.type, Namespaces.OPERATING_PERIOD_resource);
+        operatingPeriod_resource.addProperty(RDFS.label, id_operatingPeriod);
+        operatingPeriod_resource.addProperty(Namespaces.startingAt, operatingPeriod.getFromDate().format(DateTimeFormatter.ISO_DATE_TIME));
+        operatingPeriod_resource.addProperty(Namespaces.endingAt, operatingPeriod.getToDate().format(DateTimeFormatter.ISO_DATE_TIME));
+
+        return operatingPeriod_resource;
+    }
+
     @Override
     public Resource mapDayType(DayType dayType) {
-        return null;
+        String id_dayType = dayType.getId();
+        Resource dayType_resource = rdfManager.rdf.createResource(Namespaces.JOURNEYS+"/Resource/DayType/"+id_dayType);
+        dayType_resource.addProperty(RDFS.label, id_dayType);
+        dayType_resource.addProperty(RDF.type, Namespaces.DAY_TYPE_resource);
+        if(dayType.getProperties() != null)
+            dayType_resource.addProperty(Namespaces.daysOfWeek,
+                dayType.getProperties().getPropertyOfDay().get(0).getDaysOfWeek().stream().map(x -> String.valueOf(x)).collect(Collectors.joining(" ","",""))
+            );
+
+        netexManager.netex.getDayTypeAssignmentsByDayTypeIdIndex().get(id_dayType).forEach(
+                (dayTypeAssignment) -> {
+                    String id_dayTypeA = dayTypeAssignment.getId();
+                    Resource dayTypeAssignment_resource = rdfManager.rdf.createResource(Namespaces.JOURNEYS + "/Resource/DayTypeAssignment/" + id_dayTypeA);
+                    dayTypeAssignment_resource.addProperty(RDFS.label, id_dayTypeA);
+                    dayTypeAssignment_resource.addProperty(RDF.type, Namespaces.DAY_TYPE_ASSIGNMENT_resource);
+                    dayTypeAssignment_resource.addProperty(Namespaces.specifying, dayType_resource);
+                    if(dayTypeAssignment.getDate() != null)
+                        dayTypeAssignment_resource.addProperty(Namespaces.date, dayTypeAssignment.getDate().format(DateTimeFormatter.ISO_DATE));
+                    dayTypeAssignment_resource.addProperty(Namespaces.order, dayTypeAssignment.getOrder().toString());
+                    if(dayTypeAssignment.getOperatingPeriodRef() != null)
+                        dayTypeAssignment_resource.addProperty(Namespaces.definedBy,
+                            rdfManager.rdf.getResource(Namespaces.JOURNEYS + "/Resource/OperatingPeriod/"+dayTypeAssignment.getOperatingPeriodRef().getRef())
+                        );
+                }
+        );
+
+        return dayType_resource;
     }
 }
 

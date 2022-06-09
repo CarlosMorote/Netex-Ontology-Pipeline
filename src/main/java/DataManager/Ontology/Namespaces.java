@@ -47,7 +47,13 @@ public class Namespaces {
     public static final Property workedOn = getProperty(m, Namespaces.JOURNEYS, "#workedOn"); //En ontologia, pero no enlazado
     public static final Property followsJourneyPattern = getProperty(m, Namespaces.JOURNEYS, "#followsJourneyPattern");
     public static final Property passesAt = getProperty(m, Namespaces.JOURNEYS, "#passesAt");
-    public static final Property departureTime = getProperty(m, Namespaces.JOURNEYS, "departureTime");
+    public static final Property departureTime = getProperty(m, Namespaces.JOURNEYS, "#departureTime");
+    public static final Property daysOfWeek = getProperty(m, Namespaces.JOURNEYS, "#daysOfWeek");
+    public static final Property specifying = getProperty(m, Namespaces.JOURNEYS, "#specifying");
+    public static final Property date = getProperty(m, Namespaces.JOURNEYS, "#date");
+    public static final Property definedBy = getProperty(m, Namespaces.JOURNEYS, "#definedBy");
+    public static final Property startingAt = getProperty(m, Namespaces.JOURNEYS, "#startingAt");
+    public static final Property endingAt = getProperty(m, Namespaces.JOURNEYS, "#endingAt");
 
     public static final Resource AUTHORITY_resource = m.createResource(Namespaces.ORGANISATIONS + "#Authority");
     public static final Resource OPERATOR_resource = m.createResource(Namespaces.ORGANISATIONS + "#Operator");
@@ -63,6 +69,9 @@ public class Namespaces {
     public static final Resource LINK_SEQUENCE_resource = m.createResource(Namespaces.JOURNEYS+"#LinkSequence");
     public static final Resource VEHICLE_JOURNEY_resource = m.createResource(Namespaces.JOURNEYS+"#VehicleJourney");
     public static final Resource TIMETABLED_PASSING_TIME_resource = m.createResource(Namespaces.JOURNEYS+"TimetabledPassingTime");
+    public static final Resource DAY_TYPE_resource = m.createResource(Namespaces.JOURNEYS+"#DayType");
+    public static final Resource DAY_TYPE_ASSIGNMENT_resource = m.createResource(Namespaces.JOURNEYS+"#DayTypeAssignment");
+    public static final Resource OPERATING_PERIOD_resource = m.createResource(Namespaces.JOURNEYS+"#OperatingPeriod");
 
     public Namespaces() {
     }
