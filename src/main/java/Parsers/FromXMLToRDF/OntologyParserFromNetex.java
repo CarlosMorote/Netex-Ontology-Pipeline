@@ -9,6 +9,8 @@ import org.rutebanken.netex.model.*;
 
 import javax.xml.bind.JAXBElement;
 import java.lang.reflect.InvocationTargetException;
+import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,7 +26,7 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
         this.rdfManager = RDFManager;
         this.netexManager = netexManager;
         this.classesToCast = new String[]{
-                "Authority", "Operator", "ScheduledStopPoint", "JourneyPattern","RoutePoint", "Route", "Line"
+                "Authority", "Operator", "ScheduledStopPoint", "JourneyPattern","RoutePoint", "Route", "Line", "DayType", "ServiceJourney"
         };
     }
 
@@ -159,14 +161,15 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
     @Override
     public Resource mapServiceLinkInJourneyPattern(ServiceLinkInJourneyPattern_VersionedChildStructure link, Resource journeyPattern_resource) {
         String link_id = link.getId();
-        Resource link_resource = rdfManager.rdf.createResource(Namespaces.JOURNEYS + "/Resource/ServiceLink/"+link_id);
+        Resource link_resource = rdfManager.rdf.createResource(Namespaces.JOURNEYS + "/Resource/ServiceLinkInJourneyPattern/"+link_id);
         link_resource.addProperty(RDFS.label, link_id);
         rdfManager.addType(link_resource, Namespaces.LINK_SEQUENCE_resource);
         link_resource.addProperty(Namespaces.order, link.getOrder().toString());
 
-        // TODO: TERMINAR DE PARSEAR EL POINT IN LINK
-        //Resource point_resource = rdfManager.rdf.createResource(Namespaces);
+        Resource point_resource = rdfManager.rdf.createResource(Namespaces.JOURNEYS + "/Resource/ServiceLink/"+link.getServiceLinkRef().getRef());
+        point_resource.addProperty(RDFS.label, link.getServiceLinkRef().getRef());
 
+        link_resource.addProperty(Namespaces.aViewOf, point_resource); //No ontologia (ontology)
         journeyPattern_resource.addProperty(Namespaces.hasPointsInJourneyPattern, link_resource);
 
         return link_resource;
@@ -193,9 +196,6 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
                     pointOnRoute_resource.addProperty(Namespaces.madeUpOf, route_resource);
 
                     String id_routePoint = pointOnRoute.getPointRef().getValue().getRef();
-                    //Resource routePoint_resource = rdfManager.rdf.createResource(Namespaces.JOURNEYS+"/Resource/RoutePoint/"+id_routePoint);
-                    //rdfManager.addType(routePoint_resource, Namespaces.ROUTE_POINT_resource);
-                    //routePoint_resource.addProperty(RDFS.label, id_routePoint);
                     Resource routePoint_resource = rdfManager.rdf.getResource(Namespaces.JOURNEYS+"/Resource/RoutePoint/"+id_routePoint);
                     routePoint_resource.addProperty(Namespaces.aViewOf, pointOnRoute_resource);
                 }
@@ -250,6 +250,54 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
         }
 
         return line_resource;
+    }
+
+    @Override
+    public Resource mapServiceJourney(ServiceJourney serviceJourney) {
+        String id_serviceJourney = serviceJourney.getId();
+        Resource serviceJourney_resource = rdfManager.rdf.createResource(Namespaces.JOURNEYS + "/Resource/VehicleJourney/" + id_serviceJourney);
+        serviceJourney_resource.addProperty(RDF.type, Namespaces.VEHICLE_JOURNEY_resource);
+        serviceJourney_resource.addProperty(RDFS.label, id_serviceJourney);
+        serviceJourney_resource.addProperty(SchemaDO.name, serviceJourney.getName().getValue());
+        serviceJourney_resource.addProperty(Namespaces.hasPrivateCode, serviceJourney.getPrivateCode().getValue());
+
+        /* serviceJourney_resource.addProperty(Namespaces.workedOn,
+                rdfManager.rdf.getResource(Namespaces.JOURNEYS+"/Resource/DayType/"+serviceJourney.getDayTypes().getDayTypeRef().get(0).getValue().getRef())
+        ); */
+
+        serviceJourney_resource.addProperty(Namespaces.followsJourneyPattern,
+                rdfManager.rdf.getResource(Namespaces.JOURNEYS+"/Resource/JourneyPattern/"+serviceJourney.getJourneyPatternRef().getValue().getRef())
+        );
+
+        serviceJourney_resource.addProperty(Namespaces.onLine, // Relacción no existente en ontologia pero necesaria
+            rdfManager.rdf.getResource(Namespaces.JOURNEYS+"/Resource/Line/"+serviceJourney.getLineRef().getValue().getRef())
+        );
+
+        serviceJourney.getPassingTimes().getTimetabledPassingTime().forEach(
+                (timetabledPassingTime) -> {
+                    String id_timetable = timetabledPassingTime.getId();
+                    Resource timetable_resource = rdfManager.rdf.createResource(Namespaces.JOURNEYS+"/Resource/TimetabledPassingTime/"+id_timetable);
+                    timetable_resource.addProperty(RDF.type, Namespaces.TIMETABLED_PASSING_TIME_resource);
+                    timetable_resource.addProperty(RDFS.label, id_timetable);
+                    if(timetabledPassingTime.getDepartureTime() != null)
+                        timetable_resource.addProperty(Namespaces.departureTime,
+                                timetabledPassingTime.getDepartureTime().format(DateTimeFormatter.ISO_LOCAL_TIME)
+                        );
+                    if(timetabledPassingTime.getPointInJourneyPatternRef() != null)
+                        timetable_resource.addProperty(Namespaces.passesAt,
+                            rdfManager.rdf.getResource(Namespaces.JOURNEYS + "/Resource/StopPointsInJourneyPattern/" + timetabledPassingTime.getPointInJourneyPatternRef().getValue().getRef())
+                        );
+                    serviceJourney_resource.addProperty(Namespaces.passesAt, timetable_resource);
+                }
+        );
+
+        return serviceJourney_resource;
+    }
+
+    // TODO
+    @Override
+    public Resource mapDayType(DayType dayType) {
+        return null;
     }
 }
 

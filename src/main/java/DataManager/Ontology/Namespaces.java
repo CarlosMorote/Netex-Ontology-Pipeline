@@ -44,6 +44,10 @@ public class Namespaces {
     public static final Property hasDestinationDisplay = getProperty(m, Namespaces.COMMONS, "#hasDestinationDisplay");
     public static final Property frontText = getProperty(m, Namespaces.COMMONS, "#frontText");
     public static final Property hasPointsInJourneyPattern = getProperty(m, Namespaces.JOURNEYS, "#hasPointsInJourneyPattern"); //No en ontologia
+    public static final Property workedOn = getProperty(m, Namespaces.JOURNEYS, "#workedOn"); //En ontologia, pero no enlazado
+    public static final Property followsJourneyPattern = getProperty(m, Namespaces.JOURNEYS, "#followsJourneyPattern");
+    public static final Property passesAt = getProperty(m, Namespaces.JOURNEYS, "#passesAt");
+    public static final Property departureTime = getProperty(m, Namespaces.JOURNEYS, "departureTime");
 
     public static final Resource AUTHORITY_resource = m.createResource(Namespaces.ORGANISATIONS + "#Authority");
     public static final Resource OPERATOR_resource = m.createResource(Namespaces.ORGANISATIONS + "#Operator");
@@ -57,6 +61,8 @@ public class Namespaces {
     public static final Resource DESTINATION_DISPLAY_resource = m.createResource(Namespaces.COMMONS+"#DestinationDisplay");
     public static final Resource POINT_IN_LINK_SEQUENCE_resource = m.createResource(Namespaces.JOURNEYS+"#PointInLinkSequence");
     public static final Resource LINK_SEQUENCE_resource = m.createResource(Namespaces.JOURNEYS+"#LinkSequence");
+    public static final Resource VEHICLE_JOURNEY_resource = m.createResource(Namespaces.JOURNEYS+"#VehicleJourney");
+    public static final Resource TIMETABLED_PASSING_TIME_resource = m.createResource(Namespaces.JOURNEYS+"TimetabledPassingTime");
 
     public Namespaces() {
     }

@@ -16,5 +16,7 @@ public interface OntologyParserInterface {
     Resource mapRoutePoint(RoutePoint routePoint);
     Resource mapLine(Line line);
     Resource mapServiceLinkInJourneyPattern(ServiceLinkInJourneyPattern_VersionedChildStructure link, Resource journeyPattern_resource);
+    Resource mapServiceJourney(ServiceJourney serviceJourney);
+    Resource mapDayType(DayType dayType);
 
 }

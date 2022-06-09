@@ -11,6 +11,7 @@ import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
 import org.onebusaway.gtfs.model.Stop;
+import org.rutebanken.netex.model.ServiceLink;
 
 import java.time.LocalDateTime;
 
@@ -256,7 +257,11 @@ public class line_data_XML {
                 ServiceLinkInJourneyPattern.setAttribute("id", serviceLink_resource.getProperty(RDFS.label).getObject().toString());
 
                 // TODO: ServiceLinkRef
+                Element ServiceLinkRef = new Element("ServiceLinkRef", ns);
+                ServiceLinkRef.setAttribute("ref",
+                        serviceLink_resource.getProperty(Namespaces.aViewOf).getProperty(RDFS.label).getObject().toString());
 
+                ServiceLinkInJourneyPattern.addContent(ServiceLinkRef);
                 linksInSequence.addContent(ServiceLinkInJourneyPattern);
             }
 
