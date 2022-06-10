@@ -3,6 +3,7 @@ package Parsers.FromRDFToXML;
 import DataManager.Ontology.Namespaces;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.vocabulary.*;
 import org.jdom2.Document;
@@ -77,6 +78,9 @@ public class shared_data_XML {
 
         Element ServiceCalendarFrame = new Element("ServiceCalendarFrame", ns);
         ServiceCalendarFrame.setAttribute("id", "");
+        mapDayType(ServiceCalendarFrame, ns);
+        mapOperatingPeriods(ServiceCalendarFrame, ns);
+        mapDayTypeAssignments(ServiceCalendarFrame, ns);
 
         frames.addContent(ResourceFrame);
         frames.addContent(ServiceFrame);
@@ -91,6 +95,44 @@ public class shared_data_XML {
         root.addContent(dataObjects);
 
         return xml;
+    }
+
+    private Element mapDayTypeAssignments(Element serviceCalendarFrame, Namespace ns) {
+        return serviceCalendarFrame;
+    }
+
+    private Element mapOperatingPeriods(Element serviceCalendarFrame, Namespace ns) {
+        return serviceCalendarFrame;
+    }
+
+    private Element mapDayType(Element serviceCalendarFrame, Namespace ns) {
+        Element dayTypes = new Element("dayTypes", ns);
+        StmtIterator iterator = rdf.listStatements(null, RDF.type, Namespaces.DAY_TYPE_resource);
+        while(iterator.hasNext()){
+            Resource daytype_resource = rdf.getResource(iterator.nextStatement().getSubject().toString());
+
+            Element DayType = new Element("DayType", ns);
+            DayType.setAttribute("id", daytype_resource.getProperty(RDFS.label).getObject().toString());
+
+            Statement days = daytype_resource.getProperty(Namespaces.daysOfWeek);
+            if(days != null){
+                Element properties = new Element("properties", ns);
+                Element PropertyOfDay = new Element("PropertyOfDay", ns);
+                Element DaysOfWeek = new Element("DaysOfWeek", ns);
+
+                DaysOfWeek.setText(days.getObject().toString());
+
+                PropertyOfDay.addContent(DaysOfWeek);
+                properties.addContent(PropertyOfDay);
+                DayType.addContent(properties);
+            }
+
+            dayTypes.addContent(DayType);
+        }
+
+        serviceCalendarFrame.addContent(dayTypes);
+        System.out.println("dayTypes mapped");
+        return serviceCalendarFrame;
     }
 
     private Element mapOrganizations(Element current, Namespace ns){
