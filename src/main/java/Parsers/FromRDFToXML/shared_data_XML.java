@@ -102,6 +102,26 @@ public class shared_data_XML {
     }
 
     private Element mapOperatingPeriods(Element serviceCalendarFrame, Namespace ns) {
+        Element operatingPeriods = new Element("operatingPeriods", ns);
+
+        StmtIterator iterator = rdf.listStatements(null, RDF.type, Namespaces.OPERATING_PERIOD_resource);
+        while(iterator.hasNext()){
+            Resource operatingPeriod_resource = rdf.getResource(iterator.nextStatement().getSubject().toString());
+            Element OperatingPeriod = new Element("OperatingPeriod", ns);
+            OperatingPeriod.setAttribute("id", operatingPeriod_resource.getProperty(RDFS.label).getObject().toString());
+
+            Element FromDate = new Element("FromDate", ns);
+            FromDate.setText(operatingPeriod_resource.getProperty(Namespaces.startingAt).getObject().toString());
+            OperatingPeriod.addContent(FromDate);
+
+            Element ToDate = new Element("ToDate", ns);
+            ToDate.setText(operatingPeriod_resource.getProperty(Namespaces.endingAt).getObject().toString());
+            OperatingPeriod.addContent(ToDate);
+
+            operatingPeriods.addContent(OperatingPeriod);
+        }
+
+        serviceCalendarFrame.addContent(operatingPeriods);
         return serviceCalendarFrame;
     }
 
