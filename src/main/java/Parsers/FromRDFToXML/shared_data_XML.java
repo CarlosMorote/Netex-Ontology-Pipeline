@@ -10,6 +10,7 @@ import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
 
+import javax.swing.plaf.nimbus.State;
 import java.time.LocalDateTime;
 
 public class shared_data_XML {
@@ -98,6 +99,40 @@ public class shared_data_XML {
     }
 
     private Element mapDayTypeAssignments(Element serviceCalendarFrame, Namespace ns) {
+        Element dayTypeAssignments = new Element("dayTypeAssignments", ns);
+
+        StmtIterator iterator = rdf.listStatements(null, RDF.type, Namespaces.DAY_TYPE_ASSIGNMENT_resource);
+        while (iterator.hasNext()){
+            Resource dayTypeAssigment_resouce = rdf.getResource(iterator.nextStatement().getSubject().toString());
+            Element DayTypeAssignment = new Element("DayTypeAssignment", ns);
+            DayTypeAssignment.setAttribute("id", dayTypeAssigment_resouce.getProperty(RDFS.label).getObject().toString());
+            DayTypeAssignment.setAttribute("order", dayTypeAssigment_resouce.getProperty(Namespaces.order).getObject().toString());
+
+            Element DayTypeRef = new Element("DayTypeRef", ns);
+            DayTypeRef.setAttribute("ref",
+                    dayTypeAssigment_resouce.getProperty(Namespaces.specifying).getProperty(RDFS.label).getObject().toString()
+            );
+            DayTypeAssignment.addContent(DayTypeRef);
+
+            Statement date_stmt = dayTypeAssigment_resouce.getProperty(Namespaces.date);
+            if(date_stmt != null){
+                Element Date = new Element("Date", ns);
+                Date.setText(date_stmt.getObject().toString());
+                DayTypeAssignment.addContent(Date);
+            }
+
+            Statement OperatingPeriodRef_stmt = dayTypeAssigment_resouce.getProperty(Namespaces.definedBy);
+            if(OperatingPeriodRef_stmt != null){
+                Element OperatingPeriodRef = new Element("OperatingPeriodRef", ns);
+                OperatingPeriodRef.setAttribute("ref", OperatingPeriodRef_stmt.getProperty(RDFS.label).getObject().toString());
+                DayTypeAssignment.addContent(OperatingPeriodRef);
+            }
+
+            dayTypeAssignments.addContent(DayTypeAssignment);
+        }
+
+        serviceCalendarFrame.addContent(dayTypeAssignments);
+        System.out.println("DayTypeAssignments mapped");
         return serviceCalendarFrame;
     }
 
@@ -122,6 +157,7 @@ public class shared_data_XML {
         }
 
         serviceCalendarFrame.addContent(operatingPeriods);
+        System.out.println("OperatingPeriods mapped");
         return serviceCalendarFrame;
     }
 
