@@ -41,7 +41,4 @@ public class NetexManager {
         }
     }
 
-    // TODO: No existe metodo de exportación. Hay que crearlo de cero.
-    public void exportData(String out_path){
-    }
 }

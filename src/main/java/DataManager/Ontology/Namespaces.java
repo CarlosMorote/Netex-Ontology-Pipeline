@@ -48,6 +48,7 @@ public class Namespaces {
     public static final Property followsJourneyPattern = getProperty(m, Namespaces.JOURNEYS, "#followsJourneyPattern");
     public static final Property passesAt = getProperty(m, Namespaces.JOURNEYS, "#passesAt");
     public static final Property departureTime = getProperty(m, Namespaces.JOURNEYS, "#departureTime");
+    public static final Property arrivalTime = getProperty(m, Namespaces.JOURNEYS, "#ArrivalTime");
     public static final Property daysOfWeek = getProperty(m, Namespaces.JOURNEYS, "#daysOfWeek");
     public static final Property specifying = getProperty(m, Namespaces.JOURNEYS, "#specifying");
     public static final Property date = getProperty(m, Namespaces.JOURNEYS, "#date");
@@ -76,7 +77,6 @@ public class Namespaces {
     public Namespaces() {
     }
 
-    // TODO: ARREGLAR NO FUNCIONA
     public static Property getProperty(Model model, String n, String end){
         return model.createProperty(n+end);
     }

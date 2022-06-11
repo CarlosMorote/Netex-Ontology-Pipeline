@@ -101,7 +101,7 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
     @Override
     public Resource mapJourneyPattern(JourneyPattern journeyPattern) {
         String id = journeyPattern.getId();
-        Resource journeyPattern_resource = this.rdfManager.rdf.createResource(Namespaces.JOURNEYS+"/Resource/ServiceJourneyPattern/"+id);
+        Resource journeyPattern_resource = this.rdfManager.rdf.createResource(Namespaces.JOURNEYS+"/Resource/JourneyPattern/"+id);
         this.rdfManager.addType(journeyPattern_resource, Namespaces.SERVICE_JOURNEY_PATTERN_resource);
         journeyPattern_resource.addProperty(RDFS.label, id);
         journeyPattern_resource.addProperty(SchemaDO.name, journeyPattern.getName().getValue());
@@ -269,7 +269,12 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
         );
 
         serviceJourney_resource.addProperty(Namespaces.onLine, // Relacción no existente en ontologia pero necesaria
-            rdfManager.rdf.getResource(Namespaces.JOURNEYS+"/Resource/Line/"+serviceJourney.getLineRef().getValue().getRef())
+                rdfManager.rdf.getResource(Namespaces.JOURNEYS+"/Resource/Line/"+serviceJourney.getLineRef().getValue().getRef())
+        );
+
+        // No en ontología pero existian casos donde el operador de la linea no coincidia con el del viaje
+        serviceJourney_resource.addProperty(Namespaces.runBy,
+                rdfManager.rdf.getResource(Namespaces.ORGANISATIONS + "/Resource/Operator/"+ serviceJourney.getOperatorRef().getRef())
         );
 
         serviceJourney.getPassingTimes().getTimetabledPassingTime().forEach(
@@ -281,6 +286,10 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
                     if(timetabledPassingTime.getDepartureTime() != null)
                         timetable_resource.addProperty(Namespaces.departureTime,
                                 timetabledPassingTime.getDepartureTime().format(DateTimeFormatter.ISO_LOCAL_TIME)
+                        );
+                    if(timetabledPassingTime.getArrivalTime() != null)
+                        timetable_resource.addProperty(Namespaces.arrivalTime,
+                                timetabledPassingTime.getArrivalTime().format(DateTimeFormatter.ISO_LOCAL_TIME)
                         );
                     if(timetabledPassingTime.getPointInJourneyPatternRef() != null)
                         timetable_resource.addProperty(Namespaces.passesAt,

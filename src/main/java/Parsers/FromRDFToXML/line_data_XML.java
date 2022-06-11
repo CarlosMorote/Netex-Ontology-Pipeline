@@ -5,6 +5,8 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
+import org.apache.jena.sparql.algebra.Op;
+import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.RDFS;
 import org.apache.jena.vocabulary.SchemaDO;
 import org.jdom2.Document;
@@ -72,9 +74,94 @@ public class line_data_XML {
 
         Element frames = new Element("frames", ns);
         mapServiceFrame(frames, ns);
+        mapTimetableFrame(frames, ns);
         CompositeFrame.addContent(frames);
 
         return xml;
+    }
+
+    private Element mapTimetableFrame(Element frames, Namespace ns) {
+        Element TimetableFrame = new Element("TimetableFrame", ns);
+
+        Element vehicleJourneys = new Element("vehicleJourneys", ns);
+
+        //StmtIterator iterator = rdf.listStatements(null, RDF.type, Namespaces.VEHICLE_JOURNEY_resource);
+        StmtIterator iterator = rdf.listStatements(null, Namespaces.onLine, line_resource);
+        while (iterator.hasNext()){
+            Resource serviceJourney_resource = rdf.getResource(iterator.nextStatement().getSubject().toString());
+            Element ServiceJourney = new Element("ServiceJourney", ns);
+            ServiceJourney.setAttribute("id", serviceJourney_resource.getProperty(RDFS.label).getObject().toString());
+
+            Element Name = new Element("Name", ns);
+            Name.setText(serviceJourney_resource.getProperty(SchemaDO.name).getObject().toString());
+            ServiceJourney.addContent(Name);
+
+            Element PrivateCode = new Element("PrivateCode", ns);
+            PrivateCode.setText(serviceJourney_resource.getProperty(Namespaces.hasPrivateCode).getObject().toString());
+            ServiceJourney.addContent(PrivateCode);
+
+            Element dayTypes = new Element("dayTypes", ns);
+            Element DayTypeRef = new Element("DayTypeRef", ns);
+            DayTypeRef.setAttribute("ref", serviceJourney_resource.getProperty(Namespaces.workedOn).getProperty(RDFS.label).getObject().toString());
+            dayTypes.addContent(DayTypeRef);
+            ServiceJourney.addContent(dayTypes);
+
+            Statement journeyPattern_stmt = serviceJourney_resource.getProperty(Namespaces.followsJourneyPattern);
+            if(journeyPattern_stmt != null){
+                Element JourneyPatternRef = new Element("JourneyPatternRef", ns);
+                JourneyPatternRef.setAttribute("ref", journeyPattern_stmt.getProperty(RDFS.label).getObject().toString());
+                ServiceJourney.addContent(JourneyPatternRef);
+            }
+
+            Statement line_stms = serviceJourney_resource.getProperty(Namespaces.onLine);
+            if(line_stms != null){
+                Element LineRef = new Element("LineRef", ns);
+                LineRef.setAttribute("ref", line_stms.getProperty(RDFS.label).getObject().toString());
+                ServiceJourney.addContent(LineRef);
+            }
+
+            Statement operator_stms = serviceJourney_resource.getProperty(Namespaces.runBy);
+            if(operator_stms != null){
+                Element OperatorRef = new Element("OperatorRef", ns);
+                OperatorRef.setAttribute("ref", operator_stms.getProperty(RDFS.label).getObject().toString());
+                ServiceJourney.addContent(OperatorRef);
+            }
+
+            Element passingTimes = new Element("passingTimes", ns);
+            StmtIterator iterator1 = rdf.listStatements(serviceJourney_resource, Namespaces.passesAt, (Resource) null);
+            while(iterator1.hasNext()){
+                Resource TimetabledPassingTime_resource = rdf.getResource(iterator1.nextStatement().getObject().toString());
+                Element TimetabledPassingTime = new Element("TimetabledPassingTime", ns);
+                TimetabledPassingTime.setAttribute("id", TimetabledPassingTime_resource.getProperty(RDFS.label).getObject().toString());
+
+                Statement departureTime_stmt = TimetabledPassingTime_resource.getProperty(Namespaces.departureTime);
+                if(departureTime_stmt != null){
+                    Element DepartureTime = new Element("DepartureTime", ns);
+                    DepartureTime.setText(departureTime_stmt.getObject().toString());
+                    TimetabledPassingTime.addContent(DepartureTime);
+                }
+
+                Statement arrivalTime_stmt = TimetabledPassingTime_resource.getProperty(Namespaces.arrivalTime);
+                if(arrivalTime_stmt != null){
+                    Element ArrivalTime = new Element("ArrivalTime", ns);
+                    ArrivalTime.setText(arrivalTime_stmt.getObject().toString());
+                    TimetabledPassingTime.addContent(ArrivalTime);
+                }
+
+                Element StopPointInJourneyPatternRef = new Element("StopPointInJourneyPatternRef", ns);
+                StopPointInJourneyPatternRef.setAttribute("ref", TimetabledPassingTime_resource.getProperty(Namespaces.passesAt).getProperty(RDFS.label).getObject().toString());
+                TimetabledPassingTime.addContent(StopPointInJourneyPatternRef);
+
+                passingTimes.addContent(TimetabledPassingTime);
+            }
+
+            ServiceJourney.addContent(passingTimes);
+            vehicleJourneys.addContent(ServiceJourney);
+        }
+
+        TimetableFrame.addContent(vehicleJourneys);
+        frames.addContent(TimetableFrame);
+        return frames;
     }
 
     private Element mapServiceFrame(Element current, Namespace ns){
