@@ -124,6 +124,7 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
                     Resource passenger_resource = rdfManager.rdf.createResource(Namespaces.JOURNEYS + "/Resource/PassengerStopAssignment/" + id_passenger);
                     passenger_resource.addProperty(RDF.type, Namespaces.PASSENGER_STOP_ASSIGNMENT_resource);
                     passenger_resource.addProperty(RDFS.label, id_passenger);
+                    passenger_resource.addProperty(Namespaces.order, passengerStopAssignment.getOrder().toString());
                     passenger_resource.addProperty(Namespaces.forStopPoint, scheduledStopPoint_resource);
                     if(passengerStopAssignment.getQuayRef() != null)
                         passenger_resource.addProperty(Namespaces.forQuay, rdfManager.rdf.getResource(Namespaces.FACILITIES + "/Resource/Quay/" + passengerStopAssignment.getQuayRef().getRef()));

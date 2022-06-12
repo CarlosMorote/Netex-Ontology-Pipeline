@@ -103,6 +103,29 @@ public class shared_data_XML {
     private Element mapStopAssignments(Element serviceFrame, Namespace ns) {
         Element stopAssignments = new Element("stopAssignments", ns);
 
+        StmtIterator iterator = rdf.listStatements(null, RDF.type, Namespaces.PASSENGER_STOP_ASSIGNMENT_resource);
+        while (iterator.hasNext()) {
+            Resource passenger_resource = rdf.getResource(iterator.nextStatement().getSubject().toString());
+            Element PassengerStopAssignment = new Element("PassengerStopAssignment", ns);
+            PassengerStopAssignment.setAttribute("id", passenger_resource.getProperty(RDFS.label).getObject().toString());
+            PassengerStopAssignment.setAttribute("order", passenger_resource.getProperty(Namespaces.order).getObject().toString());
+
+            Element ScheduledStopPointRef = new Element("ScheduledStopPointRef", ns);
+            ScheduledStopPointRef.setAttribute("ref",
+                    passenger_resource.getProperty(Namespaces.forStopPoint).getProperty(RDFS.label).getObject().toString()
+            );
+
+            Statement quay_aux = passenger_resource.getProperty(Namespaces.forQuay);
+            if(quay_aux != null){
+                Element QuayRef = new Element("QuayRef", ns);
+                QuayRef.setAttribute("ref", quay_aux.getProperty(RDFS.label).getObject().toString());
+                PassengerStopAssignment.addContent(QuayRef);
+            }
+
+            PassengerStopAssignment.addContent(ScheduledStopPointRef);
+            stopAssignments.addContent(PassengerStopAssignment);
+        }
+
         serviceFrame.addContent(stopAssignments);
         return stopAssignments;
     }

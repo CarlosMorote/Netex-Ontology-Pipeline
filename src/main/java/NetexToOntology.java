@@ -18,8 +18,8 @@ public class NetexToOntology {
         NetexManager netexManager = new NetexManager(args_2);
         OntologyParserFromNetex ontologyParser = new OntologyParserFromNetex(rdfManager, netexManager);
 
-        ontologyParser.castNetexToOntology();
-        rdfManager.saveRDF("Turtle");
+        //ontologyParser.castNetexToOntology();
+        //rdfManager.saveRDF("Turtle");
 
         // ---------------------------------
 
@@ -31,7 +31,6 @@ public class NetexToOntology {
         System.out.println("\nVerificando XML generado");
         try{
             new NetexManager("/Users/carlosmorote/Master local/TFM/GTFS_Ontology_NeTEx/output.netex.zip");
-            //new NetexManager("/Users/carlosmorote/Master local/TFM/GTFS_Ontology_NeTEx/Archivo comprimido.zip");
             System.out.println("XML generado correctamente");
         } catch (Exception ex){
             System.out.println("Errores en el formato NeTEx");
