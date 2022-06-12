@@ -73,9 +73,11 @@ public class shared_data_XML {
         mapOrganizations(ResourceFrame, ns);
         Element ServiceFrame = new Element("ServiceFrame", ns);
         ServiceFrame.setAttribute("id", "");
+        mapNetwork(ServiceFrame, ns);
         mapScheduleStopPoints(ServiceFrame, ns);
         mapRoutePoints(ServiceFrame, ns);
         mapDestinadionDisplays(ServiceFrame, ns);
+        mapStopAssignments(ServiceFrame, ns);
 
         Element ServiceCalendarFrame = new Element("ServiceCalendarFrame", ns);
         ServiceCalendarFrame.setAttribute("id", "");
@@ -96,6 +98,50 @@ public class shared_data_XML {
         root.addContent(dataObjects);
 
         return xml;
+    }
+
+    private Element mapStopAssignments(Element serviceFrame, Namespace ns) {
+        Element stopAssignments = new Element("stopAssignments", ns);
+
+        serviceFrame.addContent(stopAssignments);
+        return stopAssignments;
+    }
+
+    private Element mapNetwork(Element serviceFrame, Namespace ns) {
+
+        StmtIterator iterator = rdf.listStatements(null, RDF.type, Namespaces.NETWORK_resource);
+        while (iterator.hasNext()){
+            Resource network_resource = rdf.getResource(iterator.nextStatement().getSubject().toString());
+            Element Network = new Element("Network", ns);
+            Network.setAttribute("id", network_resource.getProperty(RDFS.label).getObject().toString());
+
+            Element Name = new Element("Name", ns);
+            Name.setText(network_resource.getProperty(SchemaDO.name).getObject().toString());
+            Network.addContent(Name);
+
+            Element AuthorityRef = new Element("AuthorityRef", ns);
+            AuthorityRef.setAttribute("ref", network_resource.getProperty(Namespaces.authorizedBy).getProperty(RDFS.label).getObject().toString());
+            Network.addContent(AuthorityRef);
+
+            Element groupsOfLines = new Element("groupsOfLines", ns);
+            StmtIterator iterator1 = rdf.listStatements(network_resource, Namespaces.networkMadeUpOf, (Resource) null);
+            while (iterator1.hasNext()){
+                Resource group_resource = rdf.getResource(iterator1.nextStatement().getObject().toString());
+                Element GroupOfLines = new Element("GroupOfLines", ns);
+                GroupOfLines.setAttribute("id", group_resource.getProperty(RDFS.label).getObject().toString());
+
+                Element Name1 = new Element("Name", ns);
+                Name1.setText(group_resource.getProperty(SchemaDO.name).getObject().toString());
+                GroupOfLines.addContent(Name1);
+
+                groupsOfLines.addContent(GroupOfLines);
+            }
+
+            Network.addContent(groupsOfLines);
+            serviceFrame.addContent(Network);
+        }
+
+        return null;
     }
 
     private Element mapDayTypeAssignments(Element serviceCalendarFrame, Namespace ns) {

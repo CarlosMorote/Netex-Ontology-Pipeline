@@ -25,7 +25,17 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
         this.rdfManager = RDFManager;
         this.netexManager = netexManager;
         this.classesToCast = new String[]{
-                "Authority", "Operator", "ScheduledStopPoint", "JourneyPattern","RoutePoint", "Route", "Line", "OperatingPeriod", "DayType", "ServiceJourney"
+                "Authority",
+                "Operator",
+                "ScheduledStopPoint",
+                "JourneyPattern",
+                "RoutePoint",
+                "Route",
+                "Line",
+                "OperatingPeriod",
+                "DayType",
+                "ServiceJourney",
+                "Network"
         };
     }
 
@@ -242,6 +252,7 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
         if(group != null){
             Resource group_resource = rdfManager.rdf.createResource(Namespaces.COMMONS+"/Resource/GroupOfLines/"+group.getRef());
             group_resource.addProperty(RDFS.label, group.getRef());
+            group_resource.addProperty(SchemaDO.name, netexManager.netex.getGroupOfLinesIndex().get(group.getRef()).getName().getValue());
             line_resource.addProperty(
                     Namespaces.representedByGroup,
                     group_resource
@@ -343,6 +354,28 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
         );
 
         return dayType_resource;
+    }
+
+    @Override
+    public Resource mapNetwork(Network network) {
+        String id_network = network.getId();
+        Resource network_resource = rdfManager.rdf.createResource(Namespaces.COMMONS + "/Resource/Network/" + id_network);
+        network_resource.addProperty(RDF.type, Namespaces.NETWORK_resource);
+        network_resource.addProperty(RDFS.label, id_network);
+        network_resource.addProperty(SchemaDO.name, network.getName().getValue());
+        network_resource.addProperty(Namespaces.authorizedBy,
+                rdfManager.rdf.getResource(Namespaces.CORE + "/Resource/Authority/" + network.getTransportOrganisationRef().getValue().getRef())
+        );
+
+        network.getGroupsOfLines().getGroupOfLines().forEach(
+                (groupOfLines -> {
+                    network_resource.addProperty(Namespaces.networkMadeUpOf,
+                            rdfManager.rdf.getResource(Namespaces.COMMONS + "/Resource/GroupOfLines/" + groupOfLines.getId())
+                    );
+                })
+        );
+
+        return network_resource;
     }
 }
 

@@ -19,5 +19,6 @@ public interface OntologyParserInterface {
     Resource mapServiceJourney(ServiceJourney serviceJourney);
     Resource mapDayType(DayType dayType);
     Resource mapOperatingPeriod(OperatingPeriod operatingPeriod);
+    Resource mapNetwork(Network network);
 
 }
