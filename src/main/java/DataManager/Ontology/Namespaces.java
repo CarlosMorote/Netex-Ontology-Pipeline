@@ -57,6 +57,8 @@ public class Namespaces {
     public static final Property endingAt = getProperty(m, Namespaces.JOURNEYS, "#endingAt");
     public static final Property authorizedBy = getProperty(m, Namespaces.COMMONS, "#authorizedBy");
     public static final Property networkMadeUpOf = getProperty(m, Namespaces.COMMONS, "#networkMadeUpOf");
+    public static final Property forStopPoint = getProperty(m, Namespaces.JOURNEYS, "#forStopPoint");
+    public static final Property forQuay = getProperty(m, Namespaces.JOURNEYS, "#forQuay");
 
     public static final Resource AUTHORITY_resource = m.createResource(Namespaces.ORGANISATIONS + "#Authority");
     public static final Resource OPERATOR_resource = m.createResource(Namespaces.ORGANISATIONS + "#Operator");
@@ -76,6 +78,8 @@ public class Namespaces {
     public static final Resource DAY_TYPE_ASSIGNMENT_resource = m.createResource(Namespaces.JOURNEYS+"#DayTypeAssignment");
     public static final Resource OPERATING_PERIOD_resource = m.createResource(Namespaces.JOURNEYS+"#OperatingPeriod");
     public static final Resource NETWORK_resource = m.createResource(Namespaces.COMMONS+"#Network");
+    public static final Resource QUAY_resource = m.createResource(Namespaces.FACILITIES+"#Quay");
+    public static final Resource PASSENGER_STOP_ASSIGNMENT_resource = m.createResource(Namespaces.JOURNEYS+"#PassengerStopASsignment");
 
     public Namespaces() {
     }

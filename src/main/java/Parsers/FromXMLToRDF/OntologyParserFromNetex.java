@@ -3,6 +3,7 @@ package Parsers.FromXMLToRDF;
 import DataManager.Netex.NetexManager;
 import DataManager.Ontology.Namespaces;
 import DataManager.Ontology.RDFManager;
+import com.google.common.collect.Multimap;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.vocabulary.*;
 import org.rutebanken.netex.model.*;
@@ -25,6 +26,7 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
         this.rdfManager = RDFManager;
         this.netexManager = netexManager;
         this.classesToCast = new String[]{
+                "Quay",
                 "Authority",
                 "Operator",
                 "ScheduledStopPoint",
@@ -62,6 +64,16 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
             throw new RuntimeException(e);
         }
 
+    }
+
+    @Override
+    public Resource mapQuay(Quay quay) {
+        String id_quay = quay.getId();
+        Resource quay_resource = rdfManager.rdf.createResource(Namespaces.FACILITIES+"/Resource/Quay/"+id_quay);
+        quay_resource.addProperty(RDFS.label, id_quay);
+        quay_resource.addProperty(RDF.type, Namespaces.QUAY_resource);
+
+        return quay_resource;
     }
 
     @Override
@@ -104,6 +116,19 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
                     scheduledStopPoint_resource.addProperty(Namespaces.hasValidity, v.getFromDate().toString());
             }
         }
+
+        // PassengerStopAssigment
+        netexManager.netex.getPassengerStopAssignmentsByStopPointRefIndex().get(id).forEach(
+                (passengerStopAssignment -> {
+                    String id_passenger = passengerStopAssignment.getId();
+                    Resource passenger_resource = rdfManager.rdf.createResource(Namespaces.JOURNEYS + "/Resource/PassengerStopAssignment/" + id_passenger);
+                    passenger_resource.addProperty(RDF.type, Namespaces.PASSENGER_STOP_ASSIGNMENT_resource);
+                    passenger_resource.addProperty(RDFS.label, id_passenger);
+                    passenger_resource.addProperty(Namespaces.forStopPoint, scheduledStopPoint_resource);
+                    if(passengerStopAssignment.getQuayRef() != null)
+                        passenger_resource.addProperty(Namespaces.forQuay, rdfManager.rdf.getResource(Namespaces.FACILITIES + "/Resource/Quay/" + passengerStopAssignment.getQuayRef().getRef()));
+                })
+        );
 
         return scheduledStopPoint_resource;
     }

@@ -2,6 +2,7 @@ package DataManager.Netex;
 
 import org.entur.netex.NetexParser;
 import org.entur.netex.index.api.NetexEntitiesIndex;
+import org.entur.netex.index.api.VersionedNetexEntityIndex;
 import org.entur.netex.index.impl.NetexEntityMapByIdImpl;
 
 import java.io.FileInputStream;
@@ -31,7 +32,9 @@ public class NetexManager {
     public Collection getData(String property){
         String method = String.format("get%sIndex", property);
         try {
-            return ((NetexEntityMapByIdImpl) this.netex.getClass().getMethod(method).invoke(netex)).getAll();
+            return property.equals("Quay") ?
+                    ((VersionedNetexEntityIndex) this.netex.getClass().getMethod(method).invoke(netex)).getLatestVersions() :
+                    ((NetexEntityMapByIdImpl) this.netex.getClass().getMethod(method).invoke(netex)).getAll();
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
