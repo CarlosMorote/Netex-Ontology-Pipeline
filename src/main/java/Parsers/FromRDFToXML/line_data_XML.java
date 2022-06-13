@@ -12,25 +12,30 @@ import org.apache.jena.vocabulary.SchemaDO;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
+import org.onebusaway.gtfs.model.Route;
 import org.onebusaway.gtfs.model.Stop;
 import org.rutebanken.netex.model.ServiceLink;
 
 import java.time.LocalDateTime;
+import java.util.Random;
 
 public class line_data_XML {
 
     public Model rdf;
     public Document xml;
     public Resource line_resource;
+    public Random random;
 
     public line_data_XML(Model rdf, Document xml, Resource line_resource) {
         this.rdf = rdf;
         this.xml = xml;
         this.line_resource = line_resource;
+        this.random = new Random();
     }
 
     public Document initLineData(){
         Element root = new Element("PublicationDelivery", Namespace.getNamespace("http://www.netex.org.uk/netex"));
+        root.setAttribute("version", "1.13:NO-NeTEx-networktimetable:1.3");
         xml.setRootElement(root);
         //root.addNamespaceDeclaration(Namespace.getNamespace("http://www.netex.org.uk/netex"));
         root.addNamespaceDeclaration(Namespace.getNamespace("gis", "http://www.opengis.net/gml/3.2"));
@@ -60,16 +65,20 @@ public class line_data_XML {
 
         Element CompositeFrame = new Element("CompositeFrame", ns);
         CompositeFrame.setAttribute("created", LocalDateTime.now().toString());
-        CompositeFrame.setAttribute("id", "");
+        CompositeFrame.setAttribute("id", String.valueOf(random.nextInt()));
+        CompositeFrame.setAttribute("version", "1");
         dataObjects.addContent(CompositeFrame);
 
-        Element validityConditions = new Element("ValidityConditions", ns);
+        Element validityConditions = new Element("validityConditions", ns);
+        mapValidityConditions(validityConditions, ns);
         CompositeFrame.addContent(validityConditions);
 
         Element codespaces = new Element("codespaces", ns);
+        mapCodespaces(codespaces, ns);
         CompositeFrame.addContent(codespaces);
 
         Element FrameDefaults = new Element("FrameDefaults", ns);
+        mapFrameDefaults(FrameDefaults, ns);
         CompositeFrame.addContent(FrameDefaults);
 
         Element frames = new Element("frames", ns);
@@ -80,8 +89,62 @@ public class line_data_XML {
         return xml;
     }
 
+    private Element mapFrameDefaults(Element current, Namespace ns){
+        Element DefaultLocale = new Element("DefaultLocale", ns);
+
+        Element TimeZone = new Element("TimeZone", ns);
+        TimeZone.setText("Europe/Oslo");
+        DefaultLocale.addContent(TimeZone);
+
+        Element DefaultLanguage = new Element("DefaultLanguage", ns);
+        DefaultLanguage.setText("no");
+        DefaultLocale.addContent(DefaultLanguage);
+
+        current.addContent(DefaultLocale);
+        return current;
+    }
+
+    private Element mapCodespaces(Element current, Namespace ns){
+        String[] cod = new String[]{"ost", "nsr"};
+
+        for(String c:cod){
+            Element Codespace = new Element("Codespace", ns);
+            Codespace.setAttribute("id", c);
+
+            Element Xmlns = new Element("Xmlns", ns);
+            Xmlns.setText(c.toUpperCase());
+            Codespace.addContent(Xmlns);
+
+            Element XmlnsUrl = new Element("XmlnsUrl", ns);
+            XmlnsUrl.setText("http://www.rutebanken.org/ns/" + c);
+            Codespace.addContent(XmlnsUrl);
+
+            current.addContent(Codespace);
+        }
+
+        return current;
+    }
+
+    private Element mapValidityConditions(Element current, Namespace ns){
+        Element AvailabilityCondition = new Element("AvailabilityCondition", ns);
+        AvailabilityCondition.setAttribute("id", String.valueOf(random.nextInt()));
+        AvailabilityCondition.setAttribute("version", "1");
+
+        Element FromDate = new Element("FromDate", ns);
+        FromDate.setText("2022-05-23T00:00:00");
+        AvailabilityCondition.addContent(FromDate);
+        Element ToDate = new Element("ToDate", ns);
+        ToDate.setText("2023-05-25T00:00:00");
+        AvailabilityCondition.addContent(ToDate);
+
+        current.addContent(AvailabilityCondition);
+        return current;
+    }
+
     private Element mapTimetableFrame(Element frames, Namespace ns) {
         Element TimetableFrame = new Element("TimetableFrame", ns);
+        TimetableFrame.setAttribute("id", String.valueOf(random.nextInt()));
+        TimetableFrame.setAttribute("version", "1");
 
         Element vehicleJourneys = new Element("vehicleJourneys", ns);
 
@@ -91,6 +154,7 @@ public class line_data_XML {
             Resource serviceJourney_resource = rdf.getResource(iterator.nextStatement().getSubject().toString());
             Element ServiceJourney = new Element("ServiceJourney", ns);
             ServiceJourney.setAttribute("id", serviceJourney_resource.getProperty(RDFS.label).getObject().toString());
+            NetexParserFromRDF.mapVersion(serviceJourney_resource, ServiceJourney);
 
             Element Name = new Element("Name", ns);
             Name.setText(serviceJourney_resource.getProperty(SchemaDO.name).getObject().toString());
@@ -110,6 +174,7 @@ public class line_data_XML {
             if(journeyPattern_stmt != null){
                 Element JourneyPatternRef = new Element("JourneyPatternRef", ns);
                 JourneyPatternRef.setAttribute("ref", journeyPattern_stmt.getProperty(RDFS.label).getObject().toString());
+                NetexParserFromRDF.mapVersion(rdf.getResource(journeyPattern_stmt.getObject().toString()), JourneyPatternRef);
                 ServiceJourney.addContent(JourneyPatternRef);
             }
 
@@ -117,6 +182,7 @@ public class line_data_XML {
             if(line_stms != null){
                 Element LineRef = new Element("LineRef", ns);
                 LineRef.setAttribute("ref", line_stms.getProperty(RDFS.label).getObject().toString());
+                NetexParserFromRDF.mapVersion(rdf.getResource(line_stms.getObject().toString()),LineRef);
                 ServiceJourney.addContent(LineRef);
             }
 
@@ -150,6 +216,8 @@ public class line_data_XML {
 
                 Element StopPointInJourneyPatternRef = new Element("StopPointInJourneyPatternRef", ns);
                 StopPointInJourneyPatternRef.setAttribute("ref", TimetabledPassingTime_resource.getProperty(Namespaces.passesAt).getProperty(RDFS.label).getObject().toString());
+                NetexParserFromRDF.mapVersion(rdf.getResource(TimetabledPassingTime_resource.getProperty(Namespaces.passesAt).getObject().toString()),
+                        StopPointInJourneyPatternRef);
                 TimetabledPassingTime.addContent(StopPointInJourneyPatternRef);
 
                 passingTimes.addContent(TimetabledPassingTime);
@@ -166,7 +234,8 @@ public class line_data_XML {
 
     private Element mapServiceFrame(Element current, Namespace ns){
         Element ServiceFrame = new Element("ServiceFrame", ns);
-        ServiceFrame.setAttribute("id", "");
+        ServiceFrame.setAttribute("id", String.valueOf(random.nextInt()));
+        ServiceFrame.setAttribute("version", "1");
 
         mapRoutes(ServiceFrame, ns);
         mapLines(ServiceFrame, ns);
@@ -186,6 +255,7 @@ public class line_data_XML {
 
             Element Route = new Element("Route", ns);
             Route.setAttribute("id", route.getProperty(RDFS.label).getObject().toString());
+            NetexParserFromRDF.mapVersion(route, Route);
 
             Element Name = new Element("Name", ns);
             Name.setText(route.getProperty(SchemaDO.name).getObject().toString());
@@ -196,7 +266,8 @@ public class line_data_XML {
             Route.addContent(ShortName);
 
             Element LineRef = new Element("LineRef", ns);
-            LineRef.setAttribute("ref", line_resource.getProperty(RDFS.label).getObject().toString() );
+            LineRef.setAttribute("ref", line_resource.getProperty(RDFS.label).getObject().toString());
+            NetexParserFromRDF.mapVersion(line_resource, LineRef);
             Route.addContent(LineRef);
 
             Element DirectionType = new Element("DirectionType", ns);
@@ -217,6 +288,7 @@ public class line_data_XML {
                 PointOnRoute.setAttribute("order",
                         PoR.getProperty(Namespaces.order).getObject().toString()
                 );
+                NetexParserFromRDF.mapVersion(PoR, PointOnRoute);
                 Element RoutePointRef = new Element("RoutePointRef", ns);
                 RoutePointRef.setAttribute("ref",
                         rdf.listStatements(null, Namespaces.aViewOf, PoR).nextStatement().getSubject().getProperty(RDFS.label).getObject().toString()
@@ -238,6 +310,7 @@ public class line_data_XML {
 
         Element Line = new Element("Line", ns);
         Line.setAttribute("id", line_resource.getProperty(RDFS.label).getObject().toString());
+        NetexParserFromRDF.mapVersion(line_resource, Line);
 
         Element Name = new Element("Name", ns);
         Name.setText(line_resource.getProperty(SchemaDO.name).getObject().toString());
@@ -288,6 +361,7 @@ public class line_data_XML {
             Element JourneyPattern = new Element("JourneyPattern", ns);
             Resource journey_resource = rdf.listStatements(null, Namespaces.onRoute, route.getURI()).nextStatement().getSubject();
             JourneyPattern.setAttribute("id", journey_resource.getProperty(RDFS.label).getObject().toString());
+            NetexParserFromRDF.mapVersion(journey_resource, JourneyPattern);
 
             Element Name = new Element("Name", ns);
             Name.setText(journey_resource.getProperty(SchemaDO.name).getObject().toString());
@@ -295,6 +369,7 @@ public class line_data_XML {
 
             Element RouteRef = new Element("RouteRef", ns);
             RouteRef.setAttribute("ref", route.getProperty(RDFS.label).getObject().toString());
+            NetexParserFromRDF.mapVersion(route, RouteRef);
             JourneyPattern.addContent(RouteRef);
 
             //pointsInSequence
@@ -306,6 +381,7 @@ public class line_data_XML {
                 Element StopPointInJourneyPattern = new Element("StopPointInJourneyPattern", ns);
                 StopPointInJourneyPattern.setAttribute("order", point_resource.getProperty(Namespaces.order).getObject().toString());
                 StopPointInJourneyPattern.setAttribute("id", point_resource.getProperty(RDFS.label).getObject().toString());
+                NetexParserFromRDF.mapVersion(point_resource, StopPointInJourneyPattern);
 
                 Element ScheduledStopPointRef = new Element("ScheduledStopPointRef", ns);
                 ScheduledStopPointRef.setAttribute("ref",
@@ -342,6 +418,7 @@ public class line_data_XML {
                 Element ServiceLinkInJourneyPattern = new Element("ServiceLinkInJourneyPattern", ns);
                 ServiceLinkInJourneyPattern.setAttribute("order", serviceLink_resource.getProperty(Namespaces.order).getObject().toString());
                 ServiceLinkInJourneyPattern.setAttribute("id", serviceLink_resource.getProperty(RDFS.label).getObject().toString());
+                NetexParserFromRDF.mapVersion(serviceLink_resource, ServiceLinkInJourneyPattern);
 
                 Element ServiceLinkRef = new Element("ServiceLinkRef", ns);
                 ServiceLinkRef.setAttribute("ref",

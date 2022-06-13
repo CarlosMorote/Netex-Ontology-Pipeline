@@ -66,12 +66,22 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
 
     }
 
+    private Resource mapVersion(Resource current, EntityInVersionStructure obj){
+        String v = obj.getVersion();
+
+        if(v != null && v != "")
+            current.addProperty(Namespaces.version, v);
+
+        return current;
+    }
+
     @Override
     public Resource mapQuay(Quay quay) {
         String id_quay = quay.getId();
         Resource quay_resource = rdfManager.rdf.createResource(Namespaces.FACILITIES+"/Resource/Quay/"+id_quay);
         quay_resource.addProperty(RDFS.label, id_quay);
         quay_resource.addProperty(RDF.type, Namespaces.QUAY_resource);
+        mapVersion(quay_resource, quay);
 
         return quay_resource;
     }
@@ -84,6 +94,7 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
         authority_resource.addProperty(RDFS.label, id);
         authority_resource.addProperty(SKOS.notation, authority.getCompanyNumber());
         authority_resource.addProperty(SKOS.prefLabel, authority.getName().getValue());
+        mapVersion(authority_resource, authority);
 
         return authority_resource;
     }
@@ -97,6 +108,7 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
         operator_resource.addProperty(SKOS.notation, operator.getCompanyNumber());
         operator_resource.addProperty(VCARD4.hasName, operator.getName().getValue());
         operator_resource.addProperty(VCARD4.hasURL, operator.getCustomerServiceContactDetails().getUrl());
+        mapVersion(operator_resource, operator);
 
         return operator_resource;
     }
@@ -108,6 +120,8 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
         this.rdfManager.addType(scheduledStopPoint_resource, Namespaces.SCHEDULE_STOP_POINT_resource);
         scheduledStopPoint_resource.addProperty(RDFS.label, id);
         scheduledStopPoint_resource.addProperty(SchemaDO.name, scheduledStopPoint.getName().getValue());
+        mapVersion(scheduledStopPoint_resource, scheduledStopPoint);
+
 
         List<ValidBetween> validity = scheduledStopPoint.getValidBetween();
         if(!validity.isEmpty()){
@@ -126,6 +140,7 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
                     passenger_resource.addProperty(RDFS.label, id_passenger);
                     passenger_resource.addProperty(Namespaces.order, passengerStopAssignment.getOrder().toString());
                     passenger_resource.addProperty(Namespaces.forStopPoint, scheduledStopPoint_resource);
+                    mapVersion(passenger_resource, passengerStopAssignment);
                     if(passengerStopAssignment.getQuayRef() != null)
                         passenger_resource.addProperty(Namespaces.forQuay, rdfManager.rdf.getResource(Namespaces.FACILITIES + "/Resource/Quay/" + passengerStopAssignment.getQuayRef().getRef()));
                 })
@@ -142,6 +157,7 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
         journeyPattern_resource.addProperty(RDFS.label, id);
         journeyPattern_resource.addProperty(SchemaDO.name, journeyPattern.getName().getValue());
         journeyPattern_resource.addProperty(Namespaces.onRoute, Namespaces.JOURNEYS+"/Resource/Route/"+journeyPattern.getRouteRef().getRef());
+        mapVersion(journeyPattern_resource, journeyPattern);
 
         journeyPattern.getPointsInSequence()
                 .getPointInJourneyPatternOrStopPointInJourneyPatternOrTimingPointInJourneyPattern()
@@ -155,7 +171,6 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
                     mapServiceLinkInJourneyPattern((ServiceLinkInJourneyPattern_VersionedChildStructure) link, journeyPattern_resource);
                 });
 
-
         return journeyPattern_resource;
     }
 
@@ -167,6 +182,7 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
         rdfManager.addType(stopPointInJourneyPattern_resource, Namespaces.STOP_POINT_IN_JOURNEY_PATTERN_resource);
         stopPointInJourneyPattern_resource.addProperty(RDFS.label, id_point);
         stopPointInJourneyPattern_resource.addProperty(Namespaces.order, point.getOrder().toString());
+        mapVersion(stopPointInJourneyPattern_resource, point);
 
         Boolean forAlighting = point.isForAlighting();
         if(forAlighting != null)
@@ -184,6 +200,7 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
             Resource destinationRef_resource = rdfManager.rdf.createResource(Namespaces.COMMONS + "/Resource/DestinationDisplay/"+destination_id);
             rdfManager.addType(destinationRef_resource, Namespaces.DESTINATION_DISPLAY_resource);
             destinationRef_resource.addProperty(RDFS.label, destination_id);
+            mapVersion(destinationRef_resource, netexManager.netex.getDestinationDisplayIndex().get(destinationDisplayRef.getRef()));
             DestinationDisplay dest = netexManager.netex.getDestinationDisplayIndex().get(destination_id);
             destinationRef_resource.addProperty(Namespaces.frontText, dest.getFrontText().getValue());
 
@@ -200,6 +217,7 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
         link_resource.addProperty(RDFS.label, link_id);
         rdfManager.addType(link_resource, Namespaces.LINK_SEQUENCE_resource);
         link_resource.addProperty(Namespaces.order, link.getOrder().toString());
+        mapVersion(link_resource, link);
 
         Resource point_resource = rdfManager.rdf.createResource(Namespaces.JOURNEYS + "/Resource/ServiceLink/"+link.getServiceLinkRef().getRef());
         point_resource.addProperty(RDFS.label, link.getServiceLinkRef().getRef());
@@ -220,6 +238,7 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
         route_resource.addProperty(SchemaDO.additionalName, route.getShortName().getValue());
         route_resource.addProperty(Namespaces.onLine, Namespaces.JOURNEYS+"/Resource/Line/"+route.getLineRef().getValue().getRef());
         route_resource.addProperty(Namespaces.allowedLineDirections, route.getDirectionType().value());
+        mapVersion(route_resource, route);
 
         route.getPointsInSequence().getPointOnRoute().forEach(
                 (pointOnRoute) -> {
@@ -229,6 +248,7 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
                     pointOnRoute_resource.addProperty(RDFS.label, id_pointOnRoute);
                     pointOnRoute_resource.addProperty(Namespaces.order, pointOnRoute.getOrder().toString());
                     pointOnRoute_resource.addProperty(Namespaces.madeUpOf, route_resource);
+                    mapVersion(pointOnRoute_resource, pointOnRoute);
 
                     String id_routePoint = pointOnRoute.getPointRef().getValue().getRef();
                     Resource routePoint_resource = rdfManager.rdf.getResource(Namespaces.JOURNEYS+"/Resource/RoutePoint/"+id_routePoint);
@@ -245,6 +265,7 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
         Resource routePoint_resource = rdfManager.rdf.createResource(Namespaces.JOURNEYS+"/Resource/RoutePoint/"+id_routePoint);
         rdfManager.addType(routePoint_resource, Namespaces.ROUTE_POINT_resource);
         routePoint_resource.addProperty(RDFS.label, id_routePoint);
+        mapVersion(routePoint_resource, routePoint);
 
         PointProjection projections = (PointProjection) routePoint.getProjections().getProjectionRefOrProjection().get(0).getValue();
         routePoint_resource.addProperty(Namespaces.hasPointProjection, projections.getId());
@@ -266,6 +287,7 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
         line_resource.addProperty(Namespaces.hasTransportMode, line.getTransportMode().value());
         line_resource.addProperty(Namespaces.hasPublicCode, line.getPublicCode());
         line_resource.addProperty(Namespaces.hasPrivateCode, line.getPrivateCode().getValue());
+        mapVersion(line_resource, line);
 
         OperatorRefStructure op = line.getOperatorRef();
         if(op != null)
@@ -279,6 +301,7 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
             Resource group_resource = rdfManager.rdf.createResource(Namespaces.COMMONS+"/Resource/GroupOfLines/"+group.getRef());
             group_resource.addProperty(RDFS.label, group.getRef());
             group_resource.addProperty(SchemaDO.name, netexManager.netex.getGroupOfLinesIndex().get(group.getRef()).getName().getValue());
+            mapVersion(group_resource, netexManager.netex.getGroupOfLinesIndex().get(group.getRef()));
             line_resource.addProperty(
                     Namespaces.representedByGroup,
                     group_resource
@@ -296,6 +319,7 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
         serviceJourney_resource.addProperty(RDFS.label, id_serviceJourney);
         serviceJourney_resource.addProperty(SchemaDO.name, serviceJourney.getName().getValue());
         serviceJourney_resource.addProperty(Namespaces.hasPrivateCode, serviceJourney.getPrivateCode().getValue());
+        mapVersion(serviceJourney_resource, serviceJourney);
 
         serviceJourney_resource.addProperty(Namespaces.workedOn,
                 rdfManager.rdf.getResource(Namespaces.JOURNEYS+"/Resource/DayType/"+serviceJourney.getDayTypes().getDayTypeRef().get(0).getValue().getRef())
@@ -320,6 +344,7 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
                     Resource timetable_resource = rdfManager.rdf.createResource(Namespaces.JOURNEYS+"/Resource/TimetabledPassingTime/"+id_timetable);
                     timetable_resource.addProperty(RDF.type, Namespaces.TIMETABLED_PASSING_TIME_resource);
                     timetable_resource.addProperty(RDFS.label, id_timetable);
+                    mapVersion(timetable_resource, timetabledPassingTime);
                     if(timetabledPassingTime.getDepartureTime() != null)
                         timetable_resource.addProperty(Namespaces.departureTime,
                                 timetabledPassingTime.getDepartureTime().format(DateTimeFormatter.ISO_LOCAL_TIME)
@@ -347,6 +372,7 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
         operatingPeriod_resource.addProperty(RDFS.label, id_operatingPeriod);
         operatingPeriod_resource.addProperty(Namespaces.startingAt, operatingPeriod.getFromDate().format(DateTimeFormatter.ISO_DATE_TIME));
         operatingPeriod_resource.addProperty(Namespaces.endingAt, operatingPeriod.getToDate().format(DateTimeFormatter.ISO_DATE_TIME));
+        mapVersion(operatingPeriod_resource, operatingPeriod);
 
         return operatingPeriod_resource;
     }
@@ -357,9 +383,12 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
         Resource dayType_resource = rdfManager.rdf.createResource(Namespaces.JOURNEYS+"/Resource/DayType/"+id_dayType);
         dayType_resource.addProperty(RDFS.label, id_dayType);
         dayType_resource.addProperty(RDF.type, Namespaces.DAY_TYPE_resource);
+        mapVersion(dayType_resource, dayType);
         if(dayType.getProperties() != null)
             dayType_resource.addProperty(Namespaces.daysOfWeek,
-                dayType.getProperties().getPropertyOfDay().get(0).getDaysOfWeek().stream().map(x -> String.valueOf(x)).collect(Collectors.joining(" ","",""))
+                    dayType.getProperties().getPropertyOfDay().get(0).getDaysOfWeek()
+                            .stream().map(x -> String.valueOf(x).substring(0,1) + String.valueOf(x).substring(1).toLowerCase())
+                            .collect(Collectors.joining(" ","",""))
             );
 
         netexManager.netex.getDayTypeAssignmentsByDayTypeIdIndex().get(id_dayType).forEach(
@@ -369,6 +398,7 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
                     dayTypeAssignment_resource.addProperty(RDFS.label, id_dayTypeA);
                     dayTypeAssignment_resource.addProperty(RDF.type, Namespaces.DAY_TYPE_ASSIGNMENT_resource);
                     dayTypeAssignment_resource.addProperty(Namespaces.specifying, dayType_resource);
+                    mapVersion(dayType_resource, dayTypeAssignment);
                     if(dayTypeAssignment.getDate() != null)
                         dayTypeAssignment_resource.addProperty(Namespaces.date, dayTypeAssignment.getDate().format(DateTimeFormatter.ISO_DATE));
                     dayTypeAssignment_resource.addProperty(Namespaces.order, dayTypeAssignment.getOrder().toString());
@@ -392,6 +422,7 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
         network_resource.addProperty(Namespaces.authorizedBy,
                 rdfManager.rdf.getResource(Namespaces.CORE + "/Resource/Authority/" + network.getTransportOrganisationRef().getValue().getRef())
         );
+        mapVersion(network_resource, network);
 
         network.getGroupsOfLines().getGroupOfLines().forEach(
                 (groupOfLines -> {

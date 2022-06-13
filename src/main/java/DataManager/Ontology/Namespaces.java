@@ -1,5 +1,6 @@
 package DataManager.Ontology;
 
+import com.fasterxml.jackson.databind.annotation.JsonAppend;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Property;
@@ -59,6 +60,7 @@ public class Namespaces {
     public static final Property networkMadeUpOf = getProperty(m, Namespaces.COMMONS, "#networkMadeUpOf");
     public static final Property forStopPoint = getProperty(m, Namespaces.JOURNEYS, "#forStopPoint");
     public static final Property forQuay = getProperty(m, Namespaces.JOURNEYS, "#forQuay");
+    public static final Property version = getProperty(m, Namespaces.CORE, "#version");
 
     public static final Resource AUTHORITY_resource = m.createResource(Namespaces.ORGANISATIONS + "#Authority");
     public static final Resource OPERATOR_resource = m.createResource(Namespaces.ORGANISATIONS + "#Operator");

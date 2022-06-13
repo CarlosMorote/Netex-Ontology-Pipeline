@@ -5,6 +5,7 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
+import org.apache.jena.rdfxml.xmlinput.impl.Names;
 import org.apache.jena.vocabulary.*;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -12,19 +13,25 @@ import org.jdom2.Namespace;
 
 import javax.swing.plaf.nimbus.State;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 public class shared_data_XML {
     public Model rdf;
     public Document xml;
+    public Random random;
 
     public shared_data_XML(Model rdf, Document xml) {
         this.rdf = rdf;
         this.xml = xml;
+        random = new Random();
     }
 
     public Document initSharedXML(){
         // Root
         Element root = new Element("PublicationDelivery", Namespace.getNamespace("http://www.netex.org.uk/netex"));
+        root.setAttribute("version", "1.13:NO-NeTEx-networktimetable:1.3");
         xml.setRootElement(root);
         //root.addNamespaceDeclaration(Namespace.getNamespace("http://www.netex.org.uk/netex"));
         root.addNamespaceDeclaration(Namespace.getNamespace("gis", "http://www.opengis.net/gml/3.2"));
@@ -57,30 +64,38 @@ public class shared_data_XML {
         Element dataObjects = new Element("dataObjects", ns);
 
         Element CompositeFrame = new Element("CompositeFrame", ns);
-        CompositeFrame.setAttribute("id", "");
+        CompositeFrame.setAttribute("id", String.valueOf(random.nextInt()));
         CompositeFrame.setAttribute("created", LocalDateTime.now().toString());
         CompositeFrame.setAttribute("version", "1");
 
         Element validityConditions = new Element("validityConditions", ns);
+        mapValidityConditions(validityConditions, ns);
 
         Element codespaces = new Element("codespaces", ns);
+        mapCodespaces(codespaces, ns);
 
         Element FrameDefaults = new Element("FrameDefaults", ns);
+        mapFrameDefaults(FrameDefaults, ns);
 
         Element frames = new Element("frames", ns);
         Element ResourceFrame = new Element("ResourceFrame", ns);
-        ResourceFrame.setAttribute("id", "");
+        ResourceFrame.setAttribute("id", String.valueOf(random.nextInt()));
+        ResourceFrame.setAttribute("version", "1");
         mapOrganizations(ResourceFrame, ns);
         Element ServiceFrame = new Element("ServiceFrame", ns);
-        ServiceFrame.setAttribute("id", "");
+        ServiceFrame.setAttribute("id", String.valueOf(random.nextInt()));
+        ServiceFrame.setAttribute("version", "1");
         mapNetwork(ServiceFrame, ns);
         mapScheduleStopPoints(ServiceFrame, ns);
         mapRoutePoints(ServiceFrame, ns);
         mapDestinadionDisplays(ServiceFrame, ns);
         mapStopAssignments(ServiceFrame, ns);
+        Element serviceLinks = new Element("serviceLinks", ns);
+        ServiceFrame.addContent(serviceLinks);
 
         Element ServiceCalendarFrame = new Element("ServiceCalendarFrame", ns);
-        ServiceCalendarFrame.setAttribute("id", "");
+        ServiceCalendarFrame.setAttribute("id", String.valueOf(random.nextInt()));
+        ServiceCalendarFrame.setAttribute("version", "1");
         mapDayType(ServiceCalendarFrame, ns);
         mapOperatingPeriods(ServiceCalendarFrame, ns);
         mapDayTypeAssignments(ServiceCalendarFrame, ns);
@@ -100,6 +115,58 @@ public class shared_data_XML {
         return xml;
     }
 
+    private Element mapFrameDefaults(Element current, Namespace ns){
+        Element DefaultLocale = new Element("DefaultLocale", ns);
+
+        Element TimeZone = new Element("TimeZone", ns);
+        TimeZone.setText("Europe/Oslo");
+        DefaultLocale.addContent(TimeZone);
+
+        Element DefaultLanguage = new Element("DefaultLanguage", ns);
+        DefaultLanguage.setText("no");
+        DefaultLocale.addContent(DefaultLanguage);
+
+        current.addContent(DefaultLocale);
+        return current;
+    }
+
+    private Element mapCodespaces(Element current, Namespace ns){
+        String[] cod = new String[]{"ost", "nsr"};
+
+        for(String c:cod){
+            Element Codespace = new Element("Codespace", ns);
+            Codespace.setAttribute("id", c);
+
+            Element Xmlns = new Element("Xmlns", ns);
+            Xmlns.setText(c.toUpperCase());
+            Codespace.addContent(Xmlns);
+
+            Element XmlnsUrl = new Element("XmlnsUrl", ns);
+            XmlnsUrl.setText("http://www.rutebanken.org/ns/" + c);
+            Codespace.addContent(XmlnsUrl);
+
+            current.addContent(Codespace);
+        }
+
+        return current;
+    }
+
+    private Element mapValidityConditions(Element current, Namespace ns){
+        Element AvailabilityCondition = new Element("AvailabilityCondition", ns);
+        AvailabilityCondition.setAttribute("id", String.valueOf(random.nextInt()));
+        AvailabilityCondition.setAttribute("version", "1");
+
+        Element FromDate = new Element("FromDate", ns);
+        FromDate.setText("2022-05-23T00:00:00");
+        AvailabilityCondition.addContent(FromDate);
+        Element ToDate = new Element("ToDate", ns);
+        ToDate.setText("2023-05-25T00:00:00");
+        AvailabilityCondition.addContent(ToDate);
+
+        current.addContent(AvailabilityCondition);
+        return current;
+    }
+
     private Element mapStopAssignments(Element serviceFrame, Namespace ns) {
         Element stopAssignments = new Element("stopAssignments", ns);
 
@@ -109,10 +176,15 @@ public class shared_data_XML {
             Element PassengerStopAssignment = new Element("PassengerStopAssignment", ns);
             PassengerStopAssignment.setAttribute("id", passenger_resource.getProperty(RDFS.label).getObject().toString());
             PassengerStopAssignment.setAttribute("order", passenger_resource.getProperty(Namespaces.order).getObject().toString());
+            NetexParserFromRDF.mapVersion(passenger_resource, PassengerStopAssignment);
 
             Element ScheduledStopPointRef = new Element("ScheduledStopPointRef", ns);
             ScheduledStopPointRef.setAttribute("ref",
                     passenger_resource.getProperty(Namespaces.forStopPoint).getProperty(RDFS.label).getObject().toString()
+            );
+            NetexParserFromRDF.mapVersion(
+                    rdf.getResource(passenger_resource.getProperty(Namespaces.forStopPoint).getObject().toString()),
+                    ScheduledStopPointRef
             );
 
             Statement quay_aux = passenger_resource.getProperty(Namespaces.forQuay);
@@ -137,6 +209,7 @@ public class shared_data_XML {
             Resource network_resource = rdf.getResource(iterator.nextStatement().getSubject().toString());
             Element Network = new Element("Network", ns);
             Network.setAttribute("id", network_resource.getProperty(RDFS.label).getObject().toString());
+            NetexParserFromRDF.mapVersion(network_resource, Network);
 
             Element Name = new Element("Name", ns);
             Name.setText(network_resource.getProperty(SchemaDO.name).getObject().toString());
@@ -144,6 +217,10 @@ public class shared_data_XML {
 
             Element AuthorityRef = new Element("AuthorityRef", ns);
             AuthorityRef.setAttribute("ref", network_resource.getProperty(Namespaces.authorizedBy).getProperty(RDFS.label).getObject().toString());
+            NetexParserFromRDF.mapVersion(
+                    rdf.getResource(network_resource.getProperty(Namespaces.authorizedBy).getObject().toString()),
+                    AuthorityRef
+            );
             Network.addContent(AuthorityRef);
 
             Element groupsOfLines = new Element("groupsOfLines", ns);
@@ -151,6 +228,7 @@ public class shared_data_XML {
             while (iterator1.hasNext()){
                 Resource group_resource = rdf.getResource(iterator1.nextStatement().getObject().toString());
                 Element GroupOfLines = new Element("GroupOfLines", ns);
+                NetexParserFromRDF.mapVersion(group_resource, GroupOfLines);
                 GroupOfLines.setAttribute("id", group_resource.getProperty(RDFS.label).getObject().toString());
 
                 Element Name1 = new Element("Name", ns);
@@ -176,10 +254,15 @@ public class shared_data_XML {
             Element DayTypeAssignment = new Element("DayTypeAssignment", ns);
             DayTypeAssignment.setAttribute("id", dayTypeAssigment_resouce.getProperty(RDFS.label).getObject().toString());
             DayTypeAssignment.setAttribute("order", dayTypeAssigment_resouce.getProperty(Namespaces.order).getObject().toString());
+            NetexParserFromRDF.mapVersion(dayTypeAssigment_resouce, DayTypeAssignment);
 
             Element DayTypeRef = new Element("DayTypeRef", ns);
             DayTypeRef.setAttribute("ref",
                     dayTypeAssigment_resouce.getProperty(Namespaces.specifying).getProperty(RDFS.label).getObject().toString()
+            );
+            NetexParserFromRDF.mapVersion(
+                    rdf.getResource(dayTypeAssigment_resouce.getProperty(Namespaces.specifying).getObject().toString()),
+                    DayTypeRef
             );
             DayTypeAssignment.addContent(DayTypeRef);
 
@@ -213,6 +296,7 @@ public class shared_data_XML {
             Resource operatingPeriod_resource = rdf.getResource(iterator.nextStatement().getSubject().toString());
             Element OperatingPeriod = new Element("OperatingPeriod", ns);
             OperatingPeriod.setAttribute("id", operatingPeriod_resource.getProperty(RDFS.label).getObject().toString());
+            NetexParserFromRDF.mapVersion(operatingPeriod_resource, OperatingPeriod);
 
             Element FromDate = new Element("FromDate", ns);
             FromDate.setText(operatingPeriod_resource.getProperty(Namespaces.startingAt).getObject().toString());
@@ -238,6 +322,7 @@ public class shared_data_XML {
 
             Element DayType = new Element("DayType", ns);
             DayType.setAttribute("id", daytype_resource.getProperty(RDFS.label).getObject().toString());
+            NetexParserFromRDF.mapVersion(daytype_resource, DayType);
 
             Statement days = daytype_resource.getProperty(Namespaces.daysOfWeek);
             if(days != null){
@@ -271,6 +356,7 @@ public class shared_data_XML {
 
             Element operator = new Element("Operator", ns);
             operator.setAttribute("id", currentResource.getProperty(RDFS.label).getObject().toString());
+            NetexParserFromRDF.mapVersion(currentResource, operator);
 
             Element name = new Element("Name", ns);
             name.setText(currentResource.getProperty(VCARD4.hasName).getObject().toString());
@@ -301,6 +387,7 @@ public class shared_data_XML {
 
             Element authority = new Element("Authority", ns);
             authority.setAttribute("id", currentResource.getProperty(RDFS.label).getObject().toString());
+            NetexParserFromRDF.mapVersion(currentResource, authority);
 
             Element name = new Element("Name", ns);
             name.setText(currentResource.getProperty(SKOS.prefLabel).getObject().toString());
@@ -334,6 +421,7 @@ public class shared_data_XML {
             Element ScheduledStopPoint = new Element("ScheduledStopPoint", ns);
             String id = currentResource.getProperty(RDFS.label).getObject().toString();
             ScheduledStopPoint.setAttribute("id", id);
+            NetexParserFromRDF.mapVersion(currentResource, ScheduledStopPoint);
 
             Element name = new Element("Name", ns);
             name.setText(currentResource.getProperty(SchemaDO.name).getObject().toString());
@@ -376,6 +464,7 @@ public class shared_data_XML {
 
             Element RoutePoint = new Element("RoutePoint", ns);
             RoutePoint.setAttribute("id", currentResource.getProperty(RDFS.label).getObject().toString());
+            NetexParserFromRDF.mapVersion(currentResource, RoutePoint);
 
             Element projections = new Element("projections", ns);
             Element PointProjection = new Element("PointProjection", ns);
@@ -383,12 +472,14 @@ public class shared_data_XML {
                     "id",
                     currentResource.getProperty(Namespaces.hasPointProjection).getObject().toString()
             );
+            PointProjection.setAttribute("version", "271");
 
             Element ProjectedPointRef = new Element("ProjectedPointRef", ns);
             ProjectedPointRef.setAttribute(
-                    "id",
+                    "ref",
                     currentResource.getProperty(Namespaces.scheduledStopPoint).getObject().toString()
             );
+            ProjectedPointRef.setAttribute("version", "1");
 
             PointProjection.addContent(ProjectedPointRef);
             projections.addContent(PointProjection);
@@ -411,6 +502,7 @@ public class shared_data_XML {
 
             Element DestinationDisplay = new Element("DestinationDisplay", ns);
             DestinationDisplay.setAttribute("id", currentResource.getProperty(RDFS.label).getObject().toString());
+            DestinationDisplay.setAttribute("version", "1");
 
             Element FrontText = new Element("FrontText", ns);
             FrontText.setText(currentResource.getProperty(Namespaces.frontText).getObject().toString());

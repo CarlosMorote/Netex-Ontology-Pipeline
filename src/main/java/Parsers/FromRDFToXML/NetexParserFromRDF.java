@@ -3,11 +3,13 @@ package Parsers.FromRDFToXML;
 import DataManager.Ontology.Namespaces;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.RDFS;
 import org.jdom2.Document;
+import org.jdom2.Element;
 import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
 
@@ -39,6 +41,13 @@ public class NetexParserFromRDF {
         String p = out_path + fileName;
         outputter.output(xml, new FileOutputStream(p));
         System.out.println("File "+p+" generated");
+    }
+
+    public static Element mapVersion(Resource rdf, Element current){
+        Statement v = rdf.getProperty(Namespaces.version);
+        if(v != null)
+            current.setAttribute("version", v.getObject().toString());
+        return current;
     }
 
     private void generate_sharedData() throws IOException{

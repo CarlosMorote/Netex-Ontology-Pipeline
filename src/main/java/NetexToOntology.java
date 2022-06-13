@@ -3,8 +3,10 @@ import DataManager.Ontology.RDFManager;
 import Parsers.FromRDFToXML.NetexParserFromRDF;
 import Parsers.FromXMLToRDF.OntologyParserFromNetex;
 import javax.xml.parsers.*;
+import java.util.Random;
 
 public class NetexToOntology {
+
     public static void main(String[] args) {
         testMapping();
     }
@@ -18,8 +20,8 @@ public class NetexToOntology {
         NetexManager netexManager = new NetexManager(args_2);
         OntologyParserFromNetex ontologyParser = new OntologyParserFromNetex(rdfManager, netexManager);
 
-        //ontologyParser.castNetexToOntology();
-        //rdfManager.saveRDF("Turtle");
+        ontologyParser.castNetexToOntology();
+        rdfManager.saveRDF("Turtle");
 
         // ---------------------------------
 
@@ -30,7 +32,7 @@ public class NetexToOntology {
 
         System.out.println("\nVerificando XML generado");
         try{
-            new NetexManager("/Users/carlosmorote/Master local/TFM/GTFS_Ontology_NeTEx/output.netex.zip");
+            NetexManager output_netex = new NetexManager("/Users/carlosmorote/Master local/TFM/GTFS_Ontology_NeTEx/output.netex.zip");
             System.out.println("XML generado correctamente");
         } catch (Exception ex){
             System.out.println("Errores en el formato NeTEx");
