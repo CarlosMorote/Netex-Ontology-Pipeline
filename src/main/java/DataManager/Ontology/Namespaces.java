@@ -63,6 +63,8 @@ public class Namespaces {
     public static final Property version = getProperty(m, Namespaces.CORE, "#version");
     public static final Property isAvailable = getProperty(m, Namespaces.JOURNEYS, "#isAvailable");
     public static final Property forBoarding = getProperty(m, Namespaces.JOURNEYS, "#forBoarding");
+    public static final Property departureOffset = getProperty(m, Namespaces.JOURNEYS, "#departureOffset");
+    public static final Property arrivalOffset = getProperty(m, Namespaces.JOURNEYS, "#arrivalOffset");
 
     public static final Resource AUTHORITY_resource = m.createResource(Namespaces.ORGANISATIONS + "#Authority");
     public static final Resource OPERATOR_resource = m.createResource(Namespaces.ORGANISATIONS + "#Operator");

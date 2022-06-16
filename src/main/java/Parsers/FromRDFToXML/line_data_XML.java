@@ -222,6 +222,20 @@ public class line_data_XML {
                     TimetabledPassingTime.addContent(ArrivalTime);
                 }
 
+                Statement offset_stmt = TimetabledPassingTime_resource.getProperty(Namespaces.departureOffset);
+                if(offset_stmt != null) {
+                    Element DepartureDayOffset = new Element("DepartureDayOffset", ns);
+                    DepartureDayOffset.setText(offset_stmt.getObject().toString());
+                    TimetabledPassingTime.addContent(DepartureDayOffset);
+                }
+
+                Statement offset_arrival_stmt = TimetabledPassingTime_resource.getProperty(Namespaces.arrivalOffset);
+                if(offset_arrival_stmt != null) {
+                    Element ArrivalDayOffset = new Element("ArrivalDayOffset", ns);
+                    ArrivalDayOffset.setText(offset_arrival_stmt.getObject().toString());
+                    TimetabledPassingTime.addContent(ArrivalDayOffset);
+                }
+
                 Element StopPointInJourneyPatternRef = new Element("StopPointInJourneyPatternRef", ns);
                 StopPointInJourneyPatternRef.setAttribute("ref", TimetabledPassingTime_resource.getProperty(Namespaces.passesAt).getProperty(RDFS.label).getObject().toString());
                 NetexParserFromRDF.mapVersion(rdf.getResource(TimetabledPassingTime_resource.getProperty(Namespaces.passesAt).getObject().toString()),

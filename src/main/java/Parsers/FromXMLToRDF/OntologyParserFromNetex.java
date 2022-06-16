@@ -350,6 +350,16 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
                     timetable_resource.addProperty(RDFS.label, id_timetable);
                     mapVersion(timetable_resource, timetabledPassingTime);
 
+                    if(timetabledPassingTime.getDepartureDayOffset() != null)
+                        timetable_resource.addProperty(Namespaces.departureOffset,
+                                timetabledPassingTime.getDepartureDayOffset().toString()
+                        );
+
+                    if(timetabledPassingTime.getArrivalDayOffset() != null)
+                        timetable_resource.addProperty(Namespaces.arrivalOffset,
+                                timetabledPassingTime.getArrivalTime().toString()
+                        );
+
                     if(timetabledPassingTime.getArrivalTime() != null)
                         timetable_resource.addProperty(Namespaces.arrivalTime,
                                 timetabledPassingTime.getArrivalTime().format(DateTimeFormatter.ISO_LOCAL_TIME)
