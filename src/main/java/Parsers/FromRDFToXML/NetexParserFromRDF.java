@@ -53,7 +53,7 @@ public class NetexParserFromRDF {
     private void generate_sharedData() throws IOException{
         initXML();
         (new shared_data_XML(rdf,xml)).generate();
-        saveXML("_shared_data.xml");
+        saveXML("_OST_shared_data.xml"); //TODO: OST must be added dynamic
     }
 
     private void generate_LinesData() throws IOException{

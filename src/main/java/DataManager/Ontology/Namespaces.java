@@ -61,6 +61,8 @@ public class Namespaces {
     public static final Property forStopPoint = getProperty(m, Namespaces.JOURNEYS, "#forStopPoint");
     public static final Property forQuay = getProperty(m, Namespaces.JOURNEYS, "#forQuay");
     public static final Property version = getProperty(m, Namespaces.CORE, "#version");
+    public static final Property isAvailable = getProperty(m, Namespaces.JOURNEYS, "#isAvailable");
+    public static final Property forBoarding = getProperty(m, Namespaces.JOURNEYS, "#forBoarding");
 
     public static final Resource AUTHORITY_resource = m.createResource(Namespaces.ORGANISATIONS + "#Authority");
     public static final Resource OPERATOR_resource = m.createResource(Namespaces.ORGANISATIONS + "#Operator");

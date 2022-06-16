@@ -188,6 +188,10 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
         if(forAlighting != null)
             stopPointInJourneyPattern_resource.addProperty(Namespaces.forAlighting, forAlighting.toString());
 
+        Boolean forBoarding = point.isForBoarding();
+        if(forBoarding != null)
+            stopPointInJourneyPattern_resource.addProperty(Namespaces.forBoarding, forBoarding.toString());
+
         JAXBElement<? extends ScheduledStopPointRefStructure> scheduledStopPoint = point.getScheduledStopPointRef();
         if(scheduledStopPoint != null){
             Resource stop_resource = this.rdfManager.rdf.getResource(Namespaces.JOURNEYS+"/Resource/ScheduledStopPoint/"+scheduledStopPoint.getValue().getRef());
@@ -345,14 +349,17 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
                     timetable_resource.addProperty(RDF.type, Namespaces.TIMETABLED_PASSING_TIME_resource);
                     timetable_resource.addProperty(RDFS.label, id_timetable);
                     mapVersion(timetable_resource, timetabledPassingTime);
-                    if(timetabledPassingTime.getDepartureTime() != null)
-                        timetable_resource.addProperty(Namespaces.departureTime,
-                                timetabledPassingTime.getDepartureTime().format(DateTimeFormatter.ISO_LOCAL_TIME)
-                        );
+
                     if(timetabledPassingTime.getArrivalTime() != null)
                         timetable_resource.addProperty(Namespaces.arrivalTime,
                                 timetabledPassingTime.getArrivalTime().format(DateTimeFormatter.ISO_LOCAL_TIME)
                         );
+
+                    if(timetabledPassingTime.getDepartureTime() != null)
+                        timetable_resource.addProperty(Namespaces.departureTime,
+                                timetabledPassingTime.getDepartureTime().format(DateTimeFormatter.ISO_LOCAL_TIME)
+                        );
+
                     if(timetabledPassingTime.getPointInJourneyPatternRef() != null)
                         timetable_resource.addProperty(Namespaces.passesAt,
                             rdfManager.rdf.getResource(Namespaces.JOURNEYS + "/Resource/StopPointsInJourneyPattern/" + timetabledPassingTime.getPointInJourneyPatternRef().getValue().getRef())
@@ -406,6 +413,8 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
                         dayTypeAssignment_resource.addProperty(Namespaces.definedBy,
                             rdfManager.rdf.getResource(Namespaces.JOURNEYS + "/Resource/OperatingPeriod/"+dayTypeAssignment.getOperatingPeriodRef().getRef())
                         );
+                    if(dayTypeAssignment.isIsAvailable() != null)
+                        dayTypeAssignment_resource.addProperty(Namespaces.isAvailable, dayTypeAssignment.isIsAvailable().toString());
                 }
         );
 

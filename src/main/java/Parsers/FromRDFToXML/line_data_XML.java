@@ -44,8 +44,13 @@ public class line_data_XML {
         Namespace ns = root.getNamespace();
 
         Element PublicationTimestamp = new Element("PublicationTimestamp", ns);
-        PublicationTimestamp.setText(LocalDateTime.now().toString()); // WARNING: PUEDE NO SER CORRECTO
+        PublicationTimestamp.setText("2022-05-26T00:05:35.012");
+        //PublicationTimestamp.setText(LocalDateTime.now().minusDays(3).toString()); // WARNING: PUEDE NO SER CORRECTO
         root.addContent(PublicationTimestamp);
+
+        Element ParticipantRef = new Element("ParticipantRef", ns);
+        ParticipantRef.setText("RB");
+        root.addContent(ParticipantRef);
 
         Element Description = new Element("Description", ns);
         Description.setText(line_resource.getProperty(SchemaDO.name).getObject().toString());
@@ -64,8 +69,9 @@ public class line_data_XML {
         root.addContent(dataObjects);
 
         Element CompositeFrame = new Element("CompositeFrame", ns);
-        CompositeFrame.setAttribute("created", LocalDateTime.now().toString());
-        CompositeFrame.setAttribute("id", String.valueOf(random.nextInt()));
+        //CompositeFrame.setAttribute("created", LocalDateTime.now().minusDays(3).toString());
+        CompositeFrame.setAttribute("created", "2022-04-08T10:32:34.29");
+        CompositeFrame.setAttribute("id", String.valueOf(Math.abs(random.nextInt())));
         CompositeFrame.setAttribute("version", "1");
         dataObjects.addContent(CompositeFrame);
 
@@ -127,7 +133,7 @@ public class line_data_XML {
 
     private Element mapValidityConditions(Element current, Namespace ns){
         Element AvailabilityCondition = new Element("AvailabilityCondition", ns);
-        AvailabilityCondition.setAttribute("id", String.valueOf(random.nextInt()));
+        AvailabilityCondition.setAttribute("id", String.valueOf(Math.abs(random.nextInt())));
         AvailabilityCondition.setAttribute("version", "1");
 
         Element FromDate = new Element("FromDate", ns);
@@ -143,7 +149,7 @@ public class line_data_XML {
 
     private Element mapTimetableFrame(Element frames, Namespace ns) {
         Element TimetableFrame = new Element("TimetableFrame", ns);
-        TimetableFrame.setAttribute("id", String.valueOf(random.nextInt()));
+        TimetableFrame.setAttribute("id", String.valueOf(Math.abs(random.nextInt())));
         TimetableFrame.setAttribute("version", "1");
 
         Element vehicleJourneys = new Element("vehicleJourneys", ns);
@@ -154,6 +160,7 @@ public class line_data_XML {
             Resource serviceJourney_resource = rdf.getResource(iterator.nextStatement().getSubject().toString());
             Element ServiceJourney = new Element("ServiceJourney", ns);
             ServiceJourney.setAttribute("id", serviceJourney_resource.getProperty(RDFS.label).getObject().toString());
+            ServiceJourney.setAttribute("publication", "public");
             NetexParserFromRDF.mapVersion(serviceJourney_resource, ServiceJourney);
 
             Element Name = new Element("Name", ns);
@@ -199,6 +206,7 @@ public class line_data_XML {
                 Resource TimetabledPassingTime_resource = rdf.getResource(iterator1.nextStatement().getObject().toString());
                 Element TimetabledPassingTime = new Element("TimetabledPassingTime", ns);
                 TimetabledPassingTime.setAttribute("id", TimetabledPassingTime_resource.getProperty(RDFS.label).getObject().toString());
+                NetexParserFromRDF.mapVersion(TimetabledPassingTime_resource, TimetabledPassingTime);
 
                 Statement departureTime_stmt = TimetabledPassingTime_resource.getProperty(Namespaces.departureTime);
                 if(departureTime_stmt != null){
@@ -234,7 +242,7 @@ public class line_data_XML {
 
     private Element mapServiceFrame(Element current, Namespace ns){
         Element ServiceFrame = new Element("ServiceFrame", ns);
-        ServiceFrame.setAttribute("id", String.valueOf(random.nextInt()));
+        ServiceFrame.setAttribute("id", String.valueOf(Math.abs(random.nextInt())));
         ServiceFrame.setAttribute("version", "1");
 
         mapRoutes(ServiceFrame, ns);
@@ -320,6 +328,12 @@ public class line_data_XML {
         TransportMode.setText(line_resource.getProperty(Namespaces.hasTransportMode).getObject().toString());
         Line.addContent(TransportMode);
 
+        Element TransportSubmode = new Element("TransportSubmode", ns);
+        Element BusSubmode = new Element("BusSubmode", ns);
+        BusSubmode.setText("localBus");
+        TransportSubmode.addContent(BusSubmode);
+        Line.addContent(TransportSubmode);
+
         Element PublicCode = new Element("PublicCode", ns);
         PublicCode.setText(line_resource.getProperty(Namespaces.hasPublicCode).getObject().toString());
         Line.addContent(PublicCode);
@@ -393,6 +407,13 @@ public class line_data_XML {
                     Element ForAlighting = new Element("ForAlighting", ns);
                     ForAlighting.setText(forAlighting_statement.getObject().toString());
                     StopPointInJourneyPattern.addContent(ForAlighting);
+                }
+
+                Statement forBoarding_stmt = point_resource.getProperty(Namespaces.forBoarding);
+                if(forBoarding_stmt != null){
+                    Element ForBoarding = new Element("ForBoarding", ns);
+                    ForBoarding.setText(forBoarding_stmt.getObject().toString());
+                    StopPointInJourneyPattern.addContent(ForBoarding);
                 }
 
                 Statement destinationDisplayRef_statement = point_resource.getProperty(Namespaces.hasDestinationDisplay);

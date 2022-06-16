@@ -40,7 +40,8 @@ public class shared_data_XML {
         Namespace ns = root.getNamespace();
 
         Element PublicationTimestamp = new Element("PublicationTimestamp", ns);
-        PublicationTimestamp.setText(LocalDateTime.now().toString());
+        //PublicationTimestamp.setText(LocalDateTime.now().minusDays(3).toString());
+        PublicationTimestamp.setText("2022-05-26T00:05:52.614");
         root.addContent(PublicationTimestamp);
 
         Element ParticipantRef = new Element("ParticipantRef", ns);
@@ -64,8 +65,9 @@ public class shared_data_XML {
         Element dataObjects = new Element("dataObjects", ns);
 
         Element CompositeFrame = new Element("CompositeFrame", ns);
-        CompositeFrame.setAttribute("id", String.valueOf(random.nextInt()));
-        CompositeFrame.setAttribute("created", LocalDateTime.now().toString());
+        CompositeFrame.setAttribute("id", String.valueOf(Math.abs(random.nextInt())));
+        CompositeFrame.setAttribute("created", "2022-04-08T10:32:34.29");
+        //CompositeFrame.setAttribute("created", LocalDateTime.now().minusDays(3).toString());
         CompositeFrame.setAttribute("version", "1");
 
         Element validityConditions = new Element("validityConditions", ns);
@@ -79,11 +81,11 @@ public class shared_data_XML {
 
         Element frames = new Element("frames", ns);
         Element ResourceFrame = new Element("ResourceFrame", ns);
-        ResourceFrame.setAttribute("id", String.valueOf(random.nextInt()));
+        ResourceFrame.setAttribute("id", String.valueOf(Math.abs(random.nextInt())));
         ResourceFrame.setAttribute("version", "1");
         mapOrganizations(ResourceFrame, ns);
         Element ServiceFrame = new Element("ServiceFrame", ns);
-        ServiceFrame.setAttribute("id", String.valueOf(random.nextInt()));
+        ServiceFrame.setAttribute("id", String.valueOf(Math.abs(random.nextInt())));
         ServiceFrame.setAttribute("version", "1");
         mapNetwork(ServiceFrame, ns);
         mapScheduleStopPoints(ServiceFrame, ns);
@@ -94,7 +96,7 @@ public class shared_data_XML {
         ServiceFrame.addContent(serviceLinks);
 
         Element ServiceCalendarFrame = new Element("ServiceCalendarFrame", ns);
-        ServiceCalendarFrame.setAttribute("id", String.valueOf(random.nextInt()));
+        ServiceCalendarFrame.setAttribute("id", String.valueOf(Math.abs(random.nextInt())));
         ServiceCalendarFrame.setAttribute("version", "1");
         mapDayType(ServiceCalendarFrame, ns);
         mapOperatingPeriods(ServiceCalendarFrame, ns);
@@ -153,7 +155,7 @@ public class shared_data_XML {
 
     private Element mapValidityConditions(Element current, Namespace ns){
         Element AvailabilityCondition = new Element("AvailabilityCondition", ns);
-        AvailabilityCondition.setAttribute("id", String.valueOf(random.nextInt()));
+        AvailabilityCondition.setAttribute("id", String.valueOf(Math.abs(random.nextInt())));
         AvailabilityCondition.setAttribute("version", "1");
 
         Element FromDate = new Element("FromDate", ns);
@@ -278,6 +280,13 @@ public class shared_data_XML {
                 Element OperatingPeriodRef = new Element("OperatingPeriodRef", ns);
                 OperatingPeriodRef.setAttribute("ref", OperatingPeriodRef_stmt.getProperty(RDFS.label).getObject().toString());
                 DayTypeAssignment.addContent(OperatingPeriodRef);
+            }
+
+            Statement isAvailable_stmt = dayTypeAssigment_resouce.getProperty(Namespaces.isAvailable);
+            if(isAvailable_stmt != null){
+                Element isAvailable = new Element("isAvailable", ns);
+                isAvailable.setText(isAvailable_stmt.getObject().toString());
+                DayTypeAssignment.addContent(isAvailable);
             }
 
             dayTypeAssignments.addContent(DayTypeAssignment);
@@ -434,6 +443,7 @@ public class shared_data_XML {
                     (String) null
             );
             Resource currentResource_2;
+            Boolean validity_non_empty = from_iterator.hasNext();
             while(from_iterator.hasNext()){
                 currentResource_2 = rdf.getResource(from_iterator.nextStatement().getSubject().toString());
 
@@ -443,7 +453,8 @@ public class shared_data_XML {
                 ValidityBetween.addContent(FromDate);
             }
 
-            ScheduledStopPoint.addContent(ValidityBetween);
+            if(validity_non_empty)
+                ScheduledStopPoint.addContent(ValidityBetween);
             scheduledStopPoints.addContent(ScheduledStopPoint);
         }
 
