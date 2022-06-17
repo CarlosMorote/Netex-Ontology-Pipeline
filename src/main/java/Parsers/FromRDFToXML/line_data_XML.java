@@ -16,8 +16,11 @@ import org.onebusaway.gtfs.model.Route;
 import org.onebusaway.gtfs.model.Stop;
 import org.rutebanken.netex.model.ServiceLink;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.Random;
+import java.util.*;
 
 public class line_data_XML {
 
@@ -25,12 +28,15 @@ public class line_data_XML {
     public Document xml;
     public Resource line_resource;
     public Random random;
+    public DateFormat dateFormat;
 
     public line_data_XML(Model rdf, Document xml, Resource line_resource) {
         this.rdf = rdf;
         this.xml = xml;
         this.line_resource = line_resource;
         this.random = new Random();
+        dateFormat = new SimpleDateFormat("HH:mm:ss");
+        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
     public Document initLineData(){
@@ -200,9 +206,12 @@ public class line_data_XML {
                 ServiceJourney.addContent(OperatorRef);
             }
 
+            Map<Long, Element> timetabledMap = new HashMap<Long, Element>();
+            int c = 0;
             Element passingTimes = new Element("passingTimes", ns);
             StmtIterator iterator1 = rdf.listStatements(serviceJourney_resource, Namespaces.passesAt, (Resource) null);
             while(iterator1.hasNext()){
+                String tim = null;
                 Resource TimetabledPassingTime_resource = rdf.getResource(iterator1.nextStatement().getObject().toString());
                 Element TimetabledPassingTime = new Element("TimetabledPassingTime", ns);
                 TimetabledPassingTime.setAttribute("id", TimetabledPassingTime_resource.getProperty(RDFS.label).getObject().toString());
@@ -210,15 +219,19 @@ public class line_data_XML {
 
                 Statement departureTime_stmt = TimetabledPassingTime_resource.getProperty(Namespaces.departureTime);
                 if(departureTime_stmt != null){
+                    tim = departureTime_stmt.getObject().toString();
+
                     Element DepartureTime = new Element("DepartureTime", ns);
-                    DepartureTime.setText(departureTime_stmt.getObject().toString());
+                    DepartureTime.setText(tim);
                     TimetabledPassingTime.addContent(DepartureTime);
                 }
 
                 Statement arrivalTime_stmt = TimetabledPassingTime_resource.getProperty(Namespaces.arrivalTime);
                 if(arrivalTime_stmt != null){
+                    tim = arrivalTime_stmt.getObject().toString();
+
                     Element ArrivalTime = new Element("ArrivalTime", ns);
-                    ArrivalTime.setText(arrivalTime_stmt.getObject().toString());
+                    ArrivalTime.setText(tim);
                     TimetabledPassingTime.addContent(ArrivalTime);
                 }
 
@@ -242,8 +255,23 @@ public class line_data_XML {
                         StopPointInJourneyPatternRef);
                 TimetabledPassingTime.addContent(StopPointInJourneyPatternRef);
 
-                passingTimes.addContent(TimetabledPassingTime);
+                if(tim != null) {
+                    try {
+                        timetabledMap.put(dateFormat.parse(tim).getTime() / 1000L + c, TimetabledPassingTime);
+                    } catch (ParseException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+
+                c++;
+
+                //passingTimes.addContent(TimetabledPassingTime);
             }
+
+            SortedSet<Long> keys = new TreeSet<>(timetabledMap.keySet());
+            for (Long key : keys)
+                passingTimes.addContent(timetabledMap.get(key));
+
 
             ServiceJourney.addContent(passingTimes);
             vehicleJourneys.addContent(ServiceJourney);
