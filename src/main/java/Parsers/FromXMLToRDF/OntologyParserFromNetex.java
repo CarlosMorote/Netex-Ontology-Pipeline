@@ -303,6 +303,7 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
         GroupOfLinesRefStructure group = line.getRepresentedByGroupRef();
         if(group != null){
             Resource group_resource = rdfManager.rdf.createResource(Namespaces.COMMONS+"/Resource/GroupOfLines/"+group.getRef());
+            rdfManager.addType(group_resource, Namespaces.GROUP_resource);
             group_resource.addProperty(RDFS.label, group.getRef());
             group_resource.addProperty(SchemaDO.name, netexManager.netex.getGroupOfLinesIndex().get(group.getRef()).getName().getValue());
             mapVersion(group_resource, netexManager.netex.getGroupOfLinesIndex().get(group.getRef()));

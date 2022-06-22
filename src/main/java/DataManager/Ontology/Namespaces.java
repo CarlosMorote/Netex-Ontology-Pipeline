@@ -86,6 +86,7 @@ public class Namespaces {
     public static final Resource NETWORK_resource = m.createResource(Namespaces.COMMONS+"#Network");
     public static final Resource QUAY_resource = m.createResource(Namespaces.FACILITIES+"#Quay");
     public static final Resource PASSENGER_STOP_ASSIGNMENT_resource = m.createResource(Namespaces.JOURNEYS+"#PassengerStopASsignment");
+    public static final Resource GROUP_resource = m.createResource(Namespaces.COMMONS+"#GroupOfLines");
 
     public Namespaces() {
     }
