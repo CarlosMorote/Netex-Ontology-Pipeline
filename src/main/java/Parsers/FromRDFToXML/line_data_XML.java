@@ -5,21 +5,15 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
-import org.apache.jena.sparql.algebra.Op;
-import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.RDFS;
 import org.apache.jena.vocabulary.SchemaDO;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
-import org.onebusaway.gtfs.model.Route;
-import org.onebusaway.gtfs.model.Stop;
-import org.rutebanken.netex.model.ServiceLink;
 
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
 import java.util.*;
 
 public class line_data_XML {
@@ -43,7 +37,6 @@ public class line_data_XML {
         Element root = new Element("PublicationDelivery", Namespace.getNamespace("http://www.netex.org.uk/netex"));
         root.setAttribute("version", "1.13:NO-NeTEx-networktimetable:1.3");
         xml.setRootElement(root);
-        //root.addNamespaceDeclaration(Namespace.getNamespace("http://www.netex.org.uk/netex"));
         root.addNamespaceDeclaration(Namespace.getNamespace("gis", "http://www.opengis.net/gml/3.2"));
         root.addNamespaceDeclaration(Namespace.getNamespace("siri", "http://www.siri.org.uk/siri"));
 
@@ -51,7 +44,6 @@ public class line_data_XML {
 
         Element PublicationTimestamp = new Element("PublicationTimestamp", ns);
         PublicationTimestamp.setText("2022-05-26T00:05:35.012");
-        //PublicationTimestamp.setText(LocalDateTime.now().minusDays(3).toString()); // WARNING: PUEDE NO SER CORRECTO
         root.addContent(PublicationTimestamp);
 
         Element ParticipantRef = new Element("ParticipantRef", ns);
@@ -75,7 +67,6 @@ public class line_data_XML {
         root.addContent(dataObjects);
 
         Element CompositeFrame = new Element("CompositeFrame", ns);
-        //CompositeFrame.setAttribute("created", LocalDateTime.now().minusDays(3).toString());
         CompositeFrame.setAttribute("created", "2022-04-08T10:32:34.29");
         CompositeFrame.setAttribute("id", String.valueOf(Math.abs(random.nextInt())));
         CompositeFrame.setAttribute("version", "1");
@@ -160,7 +151,6 @@ public class line_data_XML {
 
         Element vehicleJourneys = new Element("vehicleJourneys", ns);
 
-        //StmtIterator iterator = rdf.listStatements(null, RDF.type, Namespaces.VEHICLE_JOURNEY_resource);
         StmtIterator iterator = rdf.listStatements(null, Namespaces.onLine, line_resource);
         while (iterator.hasNext()){
             Resource serviceJourney_resource = rdf.getResource(iterator.nextStatement().getSubject().toString());
@@ -265,7 +255,6 @@ public class line_data_XML {
 
                 c++;
 
-                //passingTimes.addContent(TimetabledPassingTime);
             }
 
             SortedSet<Long> keys = new TreeSet<>(timetabledMap.keySet());

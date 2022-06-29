@@ -5,16 +5,11 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
-import org.apache.jena.rdfxml.xmlinput.impl.Names;
 import org.apache.jena.vocabulary.*;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
 
-import javax.swing.plaf.nimbus.State;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 public class shared_data_XML {
@@ -33,14 +28,12 @@ public class shared_data_XML {
         Element root = new Element("PublicationDelivery", Namespace.getNamespace("http://www.netex.org.uk/netex"));
         root.setAttribute("version", "1.13:NO-NeTEx-networktimetable:1.3");
         xml.setRootElement(root);
-        //root.addNamespaceDeclaration(Namespace.getNamespace("http://www.netex.org.uk/netex"));
         root.addNamespaceDeclaration(Namespace.getNamespace("gis", "http://www.opengis.net/gml/3.2"));
         root.addNamespaceDeclaration(Namespace.getNamespace("siri", "http://www.siri.org.uk/siri"));
 
         Namespace ns = root.getNamespace();
 
         Element PublicationTimestamp = new Element("PublicationTimestamp", ns);
-        //PublicationTimestamp.setText(LocalDateTime.now().minusDays(3).toString());
         PublicationTimestamp.setText("2022-05-26T00:05:52.614");
         root.addContent(PublicationTimestamp);
 
@@ -67,7 +60,6 @@ public class shared_data_XML {
         Element CompositeFrame = new Element("CompositeFrame", ns);
         CompositeFrame.setAttribute("id", String.valueOf(Math.abs(random.nextInt())));
         CompositeFrame.setAttribute("created", "2022-04-08T10:32:34.29");
-        //CompositeFrame.setAttribute("created", LocalDateTime.now().minusDays(3).toString());
         CompositeFrame.setAttribute("version", "1");
 
         Element validityConditions = new Element("validityConditions", ns);

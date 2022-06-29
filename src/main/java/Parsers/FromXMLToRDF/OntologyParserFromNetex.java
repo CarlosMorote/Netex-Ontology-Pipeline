@@ -3,7 +3,6 @@ package Parsers.FromXMLToRDF;
 import DataManager.Netex.NetexManager;
 import DataManager.Ontology.Namespaces;
 import DataManager.Ontology.RDFManager;
-import com.google.common.collect.Multimap;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.vocabulary.*;
 import org.rutebanken.netex.model.*;
@@ -338,7 +337,6 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
                 rdfManager.rdf.getResource(Namespaces.JOURNEYS+"/Resource/Line/"+serviceJourney.getLineRef().getValue().getRef())
         );
 
-        // No en ontología pero existian casos donde el operador de la linea no coincidia con el del viaje
         serviceJourney_resource.addProperty(Namespaces.runBy,
                 rdfManager.rdf.getResource(Namespaces.ORGANISATIONS + "/Resource/Operator/"+ serviceJourney.getOperatorRef().getRef())
         );

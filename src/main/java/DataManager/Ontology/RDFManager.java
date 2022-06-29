@@ -13,8 +13,6 @@ public class RDFManager {
 
     private String dir_output;
 
-    final private Namespaces namespaces = new Namespaces();
-
     public Model rdf;
 
     public RDFManager() {

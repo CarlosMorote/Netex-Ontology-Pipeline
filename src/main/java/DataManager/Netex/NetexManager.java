@@ -5,17 +5,9 @@ import org.entur.netex.index.api.NetexEntitiesIndex;
 import org.entur.netex.index.api.VersionedNetexEntityIndex;
 import org.entur.netex.index.impl.NetexEntityMapByIdImpl;
 
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-import java.util.zip.ZipInputStream;
 
 public class NetexManager {
     public NetexEntitiesIndex netex;
