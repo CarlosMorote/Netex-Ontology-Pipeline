@@ -7,6 +7,7 @@
     <groupId>org.ontologytransformer</groupId>
     <artifactId>GTFS_Ontology_NeTEx</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
@@ -84,7 +85,36 @@
             <version>2.0.6</version>
         </dependency>
 
+        <dependency>
+            <groupId>net.sourceforge.argparse4j</groupId>
+            <artifactId>argparse4j</artifactId>
+            <version>0.9.0</version>
+        </dependency>
 
     </dependencies>
+
+    <profiles>
+        <profile>
+            <id>clean-test-snapshots</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-clean-plugin</artifactId>
+                        <configuration>
+                            <filesets>
+                                <fileset>
+                                    <directory>${project.build.testSourceDirectory}</directory>
+                                    <includes>
+                                        <include>**/__snapshots__/*</include>
+                                        <include>**/__snapshots__</include>
+                                    </includes>
+                                </fileset>
+                            </filesets>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>

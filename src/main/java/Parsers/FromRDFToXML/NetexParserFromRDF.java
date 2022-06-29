@@ -84,7 +84,7 @@ public class NetexParserFromRDF {
         List<String> srcFiles = Arrays.stream((new File(this.out_path).list()))
                 .filter(file -> !(file.toUpperCase().contains("DS_STORE") | file.contains(".ttl")))
                 .collect(Collectors.toList());
-        FileOutputStream fos = new FileOutputStream("output.netex.zip");
+        FileOutputStream fos = new FileOutputStream(this.out_path+"output.netex.zip");
         ZipOutputStream zipOut = new ZipOutputStream(fos);
         for (String srcFile : srcFiles) {
             File fileToZip = new File(this.out_path+srcFile);
