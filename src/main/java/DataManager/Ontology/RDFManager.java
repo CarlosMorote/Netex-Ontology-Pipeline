@@ -17,19 +17,32 @@ public class RDFManager {
 
     public Model rdf;
 
+    /**
+     * Empty class constructor
+     */
     public RDFManager() {
         this.init_rdf(null);
     }
 
+    /**
+     * Class constructor that takes the output directory as parameter.
+     *
+     * @param dir_output    output directory
+     */
     public RDFManager(String dir_output) {
         this.dir_output = dir_output;
         this.init_rdf(null);
     }
 
-    public void init_rdf(Map<String, String> map){
+    /**
+     * Initializer of the rdf/turtle model setting the prefixes
+     *
+     * @param prefixes  Map of prefixes
+     */
+    public void init_rdf(Map<String, String> prefixes){
         this.rdf = ModelFactory.createDefaultModel();
-        if (map == null){
-            map = new HashMap<>(){{
+        if (prefixes == null){
+            prefixes = new HashMap<>(){{
                 put("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
                 put("schema", "https://schema.org/");
                 put("journeys", Namespaces.JOURNEYS +"#");
@@ -42,14 +55,25 @@ public class RDFManager {
                 put("facilities", Namespaces.FACILITIES+"#");
             }};
         }
-        this.rdf.setNsPrefixes(map);
+        this.rdf.setNsPrefixes(prefixes);
     }
 
-    public void saveRDF(String format){
-        this.saveRDF(this.dir_output, format);
+    /**
+     * Save the model as the indicated format in the direction saved at the construction time
+     *
+     * @param format    Format, such as, "Turtle"
+     */
+    public void save(String format){
+        this.save(this.dir_output, format);
     }
 
-    public void saveRDF(String output, String format){
+    /**
+     * Save the model in the direction specify as parameter
+     *
+     * @param output File direction where to save the data
+     * @param format Format, such as, "Turtle"
+     */
+    public void save(String output, String format){
         OutputStream out;
         try {
             out = new FileOutputStream(output);
@@ -60,10 +84,19 @@ public class RDFManager {
         }
     }
 
+    /**
+     * Prints out the model
+     */
     public void printRDF() {
         this.rdf.write(System.out);
     }
 
+    /**
+     * Generates resource with <i>type</i> property
+     *
+     * @param resource  Resource to add the type
+     * @param uri       Type to be added as ur
+     */
     public void addType(Resource resource, Resource uri){
         resource.addProperty(
             RDF.type,

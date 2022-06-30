@@ -6,6 +6,9 @@ import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.vocabulary.SKOS;
 
+/**
+ * Class to be used as an <i>uris</i> definitions.
+ */
 public class Namespaces {
     private static final Model m = ModelFactory.createDefaultModel();
     private static final String facilities = "facilities";
@@ -24,7 +27,7 @@ public class Namespaces {
     public static final String ORGANISATIONS = TRANSMODEL_ROOT + organisations;
     public static final String CORE = SKOS.getURI().split("#")[0];
 
-
+    // Properties
     public static final Property onRoute = getProperty(m, Namespaces.JOURNEYS, "#onRoute");
     public static final Property onLine = getProperty(m, Namespaces.JOURNEYS, "#onLine");
     public static final Property journeyPatternMadeUpOf = getProperty(m, Namespaces.JOURNEYS, "#journeyPatternMadeUpOf");
@@ -65,6 +68,7 @@ public class Namespaces {
     public static final Property departureOffset = getProperty(m, Namespaces.JOURNEYS, "#departureOffset");
     public static final Property arrivalOffset = getProperty(m, Namespaces.JOURNEYS, "#arrivalOffset");
 
+    // Resources
     public static final Resource AUTHORITY_resource = m.createResource(Namespaces.ORGANISATIONS + "#Authority");
     public static final Resource OPERATOR_resource = m.createResource(Namespaces.ORGANISATIONS + "#Operator");
     public static final Resource SCHEDULE_STOP_POINT_resource = m.createResource(Namespaces.JOURNEYS+"#ScheduledStopPoint");
@@ -90,6 +94,15 @@ public class Namespaces {
     public Namespaces() {
     }
 
+    /**
+     *
+     * Gets a property based in a namespaces and it termination
+     *
+     * @param model
+     * @param n     namespace
+     * @param end   termination
+     * @return      A <b>property</b>
+     */
     public static Property getProperty(Model model, String n, String end){
         return model.createProperty(n+end);
     }

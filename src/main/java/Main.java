@@ -7,8 +7,15 @@ import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
 
+
 public class Main {
 
+    /**
+     * Main class which is the one that is used as interface to the user.
+     * It is the executable class. Use <i>-h</i> to get more information about the arguments.
+     *
+     * @param args
+     */
     public static void main(String[] args) {
         ArgumentParser parser = ArgumentParsers.newFor("Main").build()
                 .defaultHelp(true)
@@ -39,18 +46,29 @@ public class Main {
                 break;
         }
 
-        //testMapping();
     }
 
+    /**
+     * Executes the pipeline from <b>NeTEx</b> files to <b>Turtle</b> ones
+     *
+     * @param netex_dir     directory where the NeTEx files or zip is located
+     * @param turtle_dir    directory where you would like to save the generated file
+     */
     public static void Netex_Turtle(String netex_dir, String turtle_dir){
         RDFManager rdfManager = new RDFManager(turtle_dir);
         NetexManager netexManager = new NetexManager(netex_dir);
         OntologyParserFromNetex ontologyParser = new OntologyParserFromNetex(rdfManager, netexManager);
 
         ontologyParser.castNetexToOntology();
-        rdfManager.saveRDF("Turtle");
+        rdfManager.save("Turtle");
     }
 
+    /**
+     * Executes the pipeline from <b>Turtle</b> file to <b>NeTEx</b> ones
+     *
+     * @param turtle_dir    directory of the Turtle file
+     * @param netex_dir     directory where you would like to write the generated NeTEx files
+     */
     public static void Turtle_Netex(String turtle_dir, String netex_dir){
         NetexParserFromRDF rdfParser = new NetexParserFromRDF(turtle_dir, netex_dir);
         rdfParser.parse();

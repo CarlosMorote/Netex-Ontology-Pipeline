@@ -9,9 +9,17 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 
+/**
+ * Class intenden to be an abstraction to execute repetitive tasks over NeTEx data
+ */
 public class NetexManager {
     public NetexEntitiesIndex netex;
 
+    /**
+     * Class generator. Only takes as parameter a direction of a zip file which contains the NeTEx data.
+     *
+     * @param zip_path
+     */
     public NetexManager(String zip_path) {
         NetexParser parser = new NetexParser();
         try {
@@ -21,6 +29,13 @@ public class NetexManager {
         }
     }
 
+    /**
+     * Relective method which returns the data absed on a property name.
+     * For instance, to get <i>Line</i> information it must be <i>getData("Line")</i>
+     *
+     * @param property  Property as string. Such as, <i>Line</i>
+     * @return          A <b>Collection</b> of instances of the property asked
+     */
     public Collection getData(String property){
         String method = String.format("get%sIndex", property);
         try {
