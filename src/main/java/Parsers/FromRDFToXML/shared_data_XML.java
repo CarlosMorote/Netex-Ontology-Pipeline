@@ -12,17 +12,31 @@ import org.jdom2.Namespace;
 
 import java.util.Random;
 
+/**
+ * Class which encapsules all the methods to generate the shared file(s)
+ */
 public class shared_data_XML {
-    public Model rdf;
+    public Model turtle;
     public Document xml;
     public Random random;
 
-    public shared_data_XML(Model rdf, Document xml) {
-        this.rdf = rdf;
+    /**
+     * Class constructor
+     *
+     * @param turtle   Model which contains the information
+     * @param xml      Document where the data it is going to be parsed and then saved
+     */
+    public shared_data_XML(Model turtle, Document xml) {
+        this.turtle = turtle;
         this.xml = xml;
         random = new Random();
     }
 
+    /**
+     * Generates a template for the xml file. As well as the root.
+     *
+     * @return Document with the basic schema
+     */
     public Document initSharedXML(){
         // Root
         Element root = new Element("PublicationDelivery", Namespace.getNamespace("http://www.netex.org.uk/netex"));
@@ -49,6 +63,11 @@ public class shared_data_XML {
         return xml;
     }
 
+    /**
+     * Generates the rest of the specified schema
+     *
+     * @return The full parsed document (xml)
+     */
     public Document generate(){
         initSharedXML();
         Element root = this.xml.getRootElement();
@@ -109,6 +128,13 @@ public class shared_data_XML {
         return xml;
     }
 
+    /**
+     * Map defaults. TODO
+     *
+     * @param current   Actual element which is being build
+     * @param ns        Namespace of the document
+     * @return
+     */
     private Element mapFrameDefaults(Element current, Namespace ns){
         Element DefaultLocale = new Element("DefaultLocale", ns);
 
@@ -124,6 +150,13 @@ public class shared_data_XML {
         return current;
     }
 
+    /**
+     * Map codespaces. TODO
+     *
+     * @param current   Actual element which is being build
+     * @param ns        Namespace of the document
+     * @return
+     */
     private Element mapCodespaces(Element current, Namespace ns){
         String[] cod = new String[]{"ost", "nsr"};
 
@@ -145,6 +178,13 @@ public class shared_data_XML {
         return current;
     }
 
+    /**
+     * Map ValidityConditions. TODO
+     *
+     * @param current   Actual element which is being build
+     * @param ns        Namespace of the document
+     * @return
+     */
     private Element mapValidityConditions(Element current, Namespace ns){
         Element AvailabilityCondition = new Element("AvailabilityCondition", ns);
         AvailabilityCondition.setAttribute("id", String.valueOf(Math.abs(random.nextInt())));
@@ -161,12 +201,19 @@ public class shared_data_XML {
         return current;
     }
 
+    /**
+     * Map StopAssignments
+     *
+     * @param serviceFrame   Actual element which is being build
+     * @param ns             Namespace of the document
+     * @return
+     */
     private Element mapStopAssignments(Element serviceFrame, Namespace ns) {
         Element stopAssignments = new Element("stopAssignments", ns);
 
-        StmtIterator iterator = rdf.listStatements(null, RDF.type, Namespaces.PASSENGER_STOP_ASSIGNMENT_resource);
+        StmtIterator iterator = turtle.listStatements(null, RDF.type, Namespaces.PASSENGER_STOP_ASSIGNMENT_resource);
         while (iterator.hasNext()) {
-            Resource passenger_resource = rdf.getResource(iterator.nextStatement().getSubject().toString());
+            Resource passenger_resource = turtle.getResource(iterator.nextStatement().getSubject().toString());
             Element PassengerStopAssignment = new Element("PassengerStopAssignment", ns);
             PassengerStopAssignment.setAttribute("id", passenger_resource.getProperty(RDFS.label).getObject().toString());
             PassengerStopAssignment.setAttribute("order", passenger_resource.getProperty(Namespaces.order).getObject().toString());
@@ -177,7 +224,7 @@ public class shared_data_XML {
                     passenger_resource.getProperty(Namespaces.forStopPoint).getProperty(RDFS.label).getObject().toString()
             );
             NetexParserFromRDF.mapVersion(
-                    rdf.getResource(passenger_resource.getProperty(Namespaces.forStopPoint).getObject().toString()),
+                    turtle.getResource(passenger_resource.getProperty(Namespaces.forStopPoint).getObject().toString()),
                     ScheduledStopPointRef
             );
 
@@ -196,11 +243,18 @@ public class shared_data_XML {
         return stopAssignments;
     }
 
+    /**
+     * Map Network
+     *
+     * @param serviceFrame   Actual element which is being build
+     * @param ns            Namespace of the document
+     * @return
+     */
     private Element mapNetwork(Element serviceFrame, Namespace ns) {
 
-        StmtIterator iterator = rdf.listStatements(null, RDF.type, Namespaces.NETWORK_resource);
+        StmtIterator iterator = turtle.listStatements(null, RDF.type, Namespaces.NETWORK_resource);
         while (iterator.hasNext()){
-            Resource network_resource = rdf.getResource(iterator.nextStatement().getSubject().toString());
+            Resource network_resource = turtle.getResource(iterator.nextStatement().getSubject().toString());
             Element Network = new Element("Network", ns);
             Network.setAttribute("id", network_resource.getProperty(RDFS.label).getObject().toString());
             NetexParserFromRDF.mapVersion(network_resource, Network);
@@ -212,15 +266,15 @@ public class shared_data_XML {
             Element AuthorityRef = new Element("AuthorityRef", ns);
             AuthorityRef.setAttribute("ref", network_resource.getProperty(Namespaces.authorizedBy).getProperty(RDFS.label).getObject().toString());
             NetexParserFromRDF.mapVersion(
-                    rdf.getResource(network_resource.getProperty(Namespaces.authorizedBy).getObject().toString()),
+                    turtle.getResource(network_resource.getProperty(Namespaces.authorizedBy).getObject().toString()),
                     AuthorityRef
             );
             Network.addContent(AuthorityRef);
 
             Element groupsOfLines = new Element("groupsOfLines", ns);
-            StmtIterator iterator1 = rdf.listStatements(network_resource, Namespaces.networkMadeUpOf, (Resource) null);
+            StmtIterator iterator1 = turtle.listStatements(network_resource, Namespaces.networkMadeUpOf, (Resource) null);
             while (iterator1.hasNext()){
-                Resource group_resource = rdf.getResource(iterator1.nextStatement().getObject().toString());
+                Resource group_resource = turtle.getResource(iterator1.nextStatement().getObject().toString());
                 Element GroupOfLines = new Element("GroupOfLines", ns);
                 NetexParserFromRDF.mapVersion(group_resource, GroupOfLines);
                 GroupOfLines.setAttribute("id", group_resource.getProperty(RDFS.label).getObject().toString());
@@ -239,12 +293,19 @@ public class shared_data_XML {
         return null;
     }
 
+    /**
+     * Map DayTypeAssignment
+     *
+     * @param serviceCalendarFrame   Actual element which is being build
+     * @param ns                     Namespace of the document
+     * @return
+     */
     private Element mapDayTypeAssignments(Element serviceCalendarFrame, Namespace ns) {
         Element dayTypeAssignments = new Element("dayTypeAssignments", ns);
 
-        StmtIterator iterator = rdf.listStatements(null, RDF.type, Namespaces.DAY_TYPE_ASSIGNMENT_resource);
+        StmtIterator iterator = turtle.listStatements(null, RDF.type, Namespaces.DAY_TYPE_ASSIGNMENT_resource);
         while (iterator.hasNext()){
-            Resource dayTypeAssigment_resouce = rdf.getResource(iterator.nextStatement().getSubject().toString());
+            Resource dayTypeAssigment_resouce = turtle.getResource(iterator.nextStatement().getSubject().toString());
             Element DayTypeAssignment = new Element("DayTypeAssignment", ns);
             DayTypeAssignment.setAttribute("id", dayTypeAssigment_resouce.getProperty(RDFS.label).getObject().toString());
             DayTypeAssignment.setAttribute("order", dayTypeAssigment_resouce.getProperty(Namespaces.order).getObject().toString());
@@ -255,7 +316,7 @@ public class shared_data_XML {
                     dayTypeAssigment_resouce.getProperty(Namespaces.specifying).getProperty(RDFS.label).getObject().toString()
             );
             NetexParserFromRDF.mapVersion(
-                    rdf.getResource(dayTypeAssigment_resouce.getProperty(Namespaces.specifying).getObject().toString()),
+                    turtle.getResource(dayTypeAssigment_resouce.getProperty(Namespaces.specifying).getObject().toString()),
                     DayTypeRef
             );
             DayTypeAssignment.addContent(DayTypeRef);
@@ -289,12 +350,19 @@ public class shared_data_XML {
         return serviceCalendarFrame;
     }
 
+    /**
+     * Map OperatingPeriod
+     *
+     * @param serviceCalendarFrame   Actual element which is being build
+     * @param ns                     Namespace of the document
+     * @return
+     */
     private Element mapOperatingPeriods(Element serviceCalendarFrame, Namespace ns) {
         Element operatingPeriods = new Element("operatingPeriods", ns);
 
-        StmtIterator iterator = rdf.listStatements(null, RDF.type, Namespaces.OPERATING_PERIOD_resource);
+        StmtIterator iterator = turtle.listStatements(null, RDF.type, Namespaces.OPERATING_PERIOD_resource);
         while(iterator.hasNext()){
-            Resource operatingPeriod_resource = rdf.getResource(iterator.nextStatement().getSubject().toString());
+            Resource operatingPeriod_resource = turtle.getResource(iterator.nextStatement().getSubject().toString());
             Element OperatingPeriod = new Element("OperatingPeriod", ns);
             OperatingPeriod.setAttribute("id", operatingPeriod_resource.getProperty(RDFS.label).getObject().toString());
             NetexParserFromRDF.mapVersion(operatingPeriod_resource, OperatingPeriod);
@@ -315,11 +383,18 @@ public class shared_data_XML {
         return serviceCalendarFrame;
     }
 
+    /**
+     * Map DayType
+     *
+     * @param serviceCalendarFrame   Actual element which is being build
+     * @param ns                     Namespace of the document
+     * @return
+     */
     private Element mapDayType(Element serviceCalendarFrame, Namespace ns) {
         Element dayTypes = new Element("dayTypes", ns);
-        StmtIterator iterator = rdf.listStatements(null, RDF.type, Namespaces.DAY_TYPE_resource);
+        StmtIterator iterator = turtle.listStatements(null, RDF.type, Namespaces.DAY_TYPE_resource);
         while(iterator.hasNext()){
-            Resource daytype_resource = rdf.getResource(iterator.nextStatement().getSubject().toString());
+            Resource daytype_resource = turtle.getResource(iterator.nextStatement().getSubject().toString());
 
             Element DayType = new Element("DayType", ns);
             DayType.setAttribute("id", daytype_resource.getProperty(RDFS.label).getObject().toString());
@@ -346,14 +421,21 @@ public class shared_data_XML {
         return serviceCalendarFrame;
     }
 
+    /**
+     * Map Organizations
+     *
+     * @param current   Actual element which is being build
+     * @param ns        Namespace of the document
+     * @return
+     */
     private Element mapOrganizations(Element current, Namespace ns){
         Element organisations = new Element("organisations", ns);
 
         // Operator
-        StmtIterator itera = rdf.listStatements(null, RDF.type, Namespaces.OPERATOR_resource);
+        StmtIterator itera = turtle.listStatements(null, RDF.type, Namespaces.OPERATOR_resource);
         Resource currentResource;
         while(itera.hasNext()){
-            currentResource = rdf.getResource(itera.nextStatement().getSubject().toString());
+            currentResource = turtle.getResource(itera.nextStatement().getSubject().toString());
 
             Element operator = new Element("Operator", ns);
             operator.setAttribute("id", currentResource.getProperty(RDFS.label).getObject().toString());
@@ -382,9 +464,9 @@ public class shared_data_XML {
         }
 
         // Authority
-        itera = rdf.listStatements(null, RDF.type, Namespaces.AUTHORITY_resource);
+        itera = turtle.listStatements(null, RDF.type, Namespaces.AUTHORITY_resource);
         while(itera.hasNext()){
-            currentResource = rdf.getResource(itera.nextStatement().getSubject().toString());
+            currentResource = turtle.getResource(itera.nextStatement().getSubject().toString());
 
             Element authority = new Element("Authority", ns);
             authority.setAttribute("id", currentResource.getProperty(RDFS.label).getObject().toString());
@@ -411,13 +493,20 @@ public class shared_data_XML {
         return current;
     }
 
+    /**
+     * Map ScheduledStopPoints
+     *
+     * @param current   Actual element which is being build
+     * @param ns        Namespace of the document
+     * @return
+     */
     private Element mapScheduleStopPoints(Element current, Namespace ns){
         Element scheduledStopPoints = new Element("scheduledStopPoints", ns);
 
-        StmtIterator iterator = rdf.listStatements(null, RDF.type, Namespaces.SCHEDULE_STOP_POINT_resource);
+        StmtIterator iterator = turtle.listStatements(null, RDF.type, Namespaces.SCHEDULE_STOP_POINT_resource);
         Resource currentResource;
         while(iterator.hasNext()){
-            currentResource = rdf.getResource(iterator.nextStatement().getSubject().toString());
+            currentResource = turtle.getResource(iterator.nextStatement().getSubject().toString());
 
             Element ScheduledStopPoint = new Element("ScheduledStopPoint", ns);
             String id = currentResource.getProperty(RDFS.label).getObject().toString();
@@ -429,15 +518,15 @@ public class shared_data_XML {
             ScheduledStopPoint.addContent(name);
 
             Element ValidityBetween = new Element("ValidityBetween", ns);
-            StmtIterator from_iterator = rdf.listStatements(
-                    rdf.createResource(Namespaces.JOURNEYS+"/Resource/ScheduledStopPoint/"+id),
+            StmtIterator from_iterator = turtle.listStatements(
+                    turtle.createResource(Namespaces.JOURNEYS+"/Resource/ScheduledStopPoint/"+id),
                     Namespaces.hasValidity,
                     (String) null
             );
             Resource currentResource_2;
             Boolean validity_non_empty = from_iterator.hasNext();
             while(from_iterator.hasNext()){
-                currentResource_2 = rdf.getResource(from_iterator.nextStatement().getSubject().toString());
+                currentResource_2 = turtle.getResource(from_iterator.nextStatement().getSubject().toString());
 
                 Element FromDate = new Element("FromDate", ns);
                 FromDate.setText(currentResource_2.getProperty(Namespaces.hasValidity).getObject().toString());
@@ -457,13 +546,20 @@ public class shared_data_XML {
         return current;
     }
 
+    /**
+     * Map RoutePoints
+     *
+     * @param current   Actual element which is being build
+     * @param ns        Namespace of the document
+     * @return
+     */
     private Element mapRoutePoints(Element current, Namespace ns){
         Element routePoints = new Element("routePoints", ns);
 
-        StmtIterator iterator = rdf.listStatements(null, RDF.type, Namespaces.ROUTE_POINT_resource);
+        StmtIterator iterator = turtle.listStatements(null, RDF.type, Namespaces.ROUTE_POINT_resource);
         Resource currentResource;
         while(iterator.hasNext()){
-            currentResource = rdf.getResource(iterator.nextStatement().getSubject().toString());
+            currentResource = turtle.getResource(iterator.nextStatement().getSubject().toString());
 
             Element RoutePoint = new Element("RoutePoint", ns);
             RoutePoint.setAttribute("id", currentResource.getProperty(RDFS.label).getObject().toString());
@@ -495,13 +591,20 @@ public class shared_data_XML {
         return current;
     }
 
+    /**
+     * Map DestinationDisplays
+     *
+     * @param current   Actual element which is being build
+     * @param ns        Namespace of the document
+     * @return
+     */
     private Element mapDestinadionDisplays(Element current, Namespace ns){
         Element destinationDisplays = new Element("destinationDisplays", ns);
 
-        StmtIterator iterator = rdf.listStatements(null, RDF.type, Namespaces.DESTINATION_DISPLAY_resource);
+        StmtIterator iterator = turtle.listStatements(null, RDF.type, Namespaces.DESTINATION_DISPLAY_resource);
         Resource currentResource;
         while(iterator.hasNext()){
-            currentResource = rdf.getResource(iterator.nextStatement().getSubject().toString());
+            currentResource = turtle.getResource(iterator.nextStatement().getSubject().toString());
 
             Element DestinationDisplay = new Element("DestinationDisplay", ns);
             DestinationDisplay.setAttribute("id", currentResource.getProperty(RDFS.label).getObject().toString());

@@ -16,16 +16,26 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+/**
+ * Class which encapsules all the methods to generate a line file
+ */
 public class line_data_XML {
 
-    public Model rdf;
+    public Model turtle;
     public Document xml;
     public Resource line_resource;
     public Random random;
     public DateFormat dateFormat;
 
-    public line_data_XML(Model rdf, Document xml, Resource line_resource) {
-        this.rdf = rdf;
+    /**
+     * Class constructor
+     *
+     * @param turtle        Model which contains the information (Turtle/RDF)
+     * @param xml           Document to build the xml file
+     * @param line_resource Specify the line in which the file generates its information
+     */
+    public line_data_XML(Model turtle, Document xml, Resource line_resource) {
+        this.turtle = turtle;
         this.xml = xml;
         this.line_resource = line_resource;
         this.random = new Random();
@@ -33,6 +43,11 @@ public class line_data_XML {
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
+    /**
+     * Generates a template for the xml file. As well as the root.
+     *
+     * @return Document with the basic schema
+     */
     public Document initLineData(){
         Element root = new Element("PublicationDelivery", Namespace.getNamespace("http://www.netex.org.uk/netex"));
         root.setAttribute("version", "1.13:NO-NeTEx-networktimetable:1.3");
@@ -57,6 +72,11 @@ public class line_data_XML {
         return xml;
     }
 
+    /**
+     * Generates the rest of the specified schema.
+     *
+     * @return The full parsed document (xml)
+     */
     public Document generate(){
         initLineData();
         Element root = xml.getRootElement();
@@ -92,6 +112,13 @@ public class line_data_XML {
         return xml;
     }
 
+    /**
+     * Map defaults. TODO
+     *
+     * @param current   Actual element which is being build
+     * @param ns        Namespace of the document
+     * @return
+     */
     private Element mapFrameDefaults(Element current, Namespace ns){
         Element DefaultLocale = new Element("DefaultLocale", ns);
 
@@ -107,6 +134,13 @@ public class line_data_XML {
         return current;
     }
 
+    /**
+     * Map codespaces. TODO
+     *
+     * @param current   Actual element which is being build
+     * @param ns        Namespace of the document
+     * @return
+     */
     private Element mapCodespaces(Element current, Namespace ns){
         String[] cod = new String[]{"ost", "nsr"};
 
@@ -128,6 +162,13 @@ public class line_data_XML {
         return current;
     }
 
+    /**
+     * Map ValidityConditions. TODO
+     *
+     * @param current   Actual element which is being build
+     * @param ns        Namespace of the document
+     * @return
+     */
     private Element mapValidityConditions(Element current, Namespace ns){
         Element AvailabilityCondition = new Element("AvailabilityCondition", ns);
         AvailabilityCondition.setAttribute("id", String.valueOf(Math.abs(random.nextInt())));
@@ -144,6 +185,13 @@ public class line_data_XML {
         return current;
     }
 
+    /**
+     * Map TimetableFrame
+     *
+     * @param frames    Actual element which is being build
+     * @param ns        Namespace of the document
+     * @return
+     */
     private Element mapTimetableFrame(Element frames, Namespace ns) {
         Element TimetableFrame = new Element("TimetableFrame", ns);
         TimetableFrame.setAttribute("id", String.valueOf(Math.abs(random.nextInt())));
@@ -151,9 +199,9 @@ public class line_data_XML {
 
         Element vehicleJourneys = new Element("vehicleJourneys", ns);
 
-        StmtIterator iterator = rdf.listStatements(null, Namespaces.onLine, line_resource);
+        StmtIterator iterator = turtle.listStatements(null, Namespaces.onLine, line_resource);
         while (iterator.hasNext()){
-            Resource serviceJourney_resource = rdf.getResource(iterator.nextStatement().getSubject().toString());
+            Resource serviceJourney_resource = turtle.getResource(iterator.nextStatement().getSubject().toString());
             Element ServiceJourney = new Element("ServiceJourney", ns);
             ServiceJourney.setAttribute("id", serviceJourney_resource.getProperty(RDFS.label).getObject().toString());
             ServiceJourney.setAttribute("publication", "public");
@@ -177,7 +225,7 @@ public class line_data_XML {
             if(journeyPattern_stmt != null){
                 Element JourneyPatternRef = new Element("JourneyPatternRef", ns);
                 JourneyPatternRef.setAttribute("ref", journeyPattern_stmt.getProperty(RDFS.label).getObject().toString());
-                NetexParserFromRDF.mapVersion(rdf.getResource(journeyPattern_stmt.getObject().toString()), JourneyPatternRef);
+                NetexParserFromRDF.mapVersion(turtle.getResource(journeyPattern_stmt.getObject().toString()), JourneyPatternRef);
                 ServiceJourney.addContent(JourneyPatternRef);
             }
 
@@ -185,7 +233,7 @@ public class line_data_XML {
             if(line_stms != null){
                 Element LineRef = new Element("LineRef", ns);
                 LineRef.setAttribute("ref", line_stms.getProperty(RDFS.label).getObject().toString());
-                NetexParserFromRDF.mapVersion(rdf.getResource(line_stms.getObject().toString()),LineRef);
+                NetexParserFromRDF.mapVersion(turtle.getResource(line_stms.getObject().toString()),LineRef);
                 ServiceJourney.addContent(LineRef);
             }
 
@@ -199,10 +247,10 @@ public class line_data_XML {
             Map<Long, Element> timetabledMap = new HashMap<Long, Element>();
             int c = 0;
             Element passingTimes = new Element("passingTimes", ns);
-            StmtIterator iterator1 = rdf.listStatements(serviceJourney_resource, Namespaces.passesAt, (Resource) null);
+            StmtIterator iterator1 = turtle.listStatements(serviceJourney_resource, Namespaces.passesAt, (Resource) null);
             while(iterator1.hasNext()){
                 String tim = null;
-                Resource TimetabledPassingTime_resource = rdf.getResource(iterator1.nextStatement().getObject().toString());
+                Resource TimetabledPassingTime_resource = turtle.getResource(iterator1.nextStatement().getObject().toString());
                 Element TimetabledPassingTime = new Element("TimetabledPassingTime", ns);
                 TimetabledPassingTime.setAttribute("id", TimetabledPassingTime_resource.getProperty(RDFS.label).getObject().toString());
                 NetexParserFromRDF.mapVersion(TimetabledPassingTime_resource, TimetabledPassingTime);
@@ -241,7 +289,7 @@ public class line_data_XML {
 
                 Element StopPointInJourneyPatternRef = new Element("StopPointInJourneyPatternRef", ns);
                 StopPointInJourneyPatternRef.setAttribute("ref", TimetabledPassingTime_resource.getProperty(Namespaces.passesAt).getProperty(RDFS.label).getObject().toString());
-                NetexParserFromRDF.mapVersion(rdf.getResource(TimetabledPassingTime_resource.getProperty(Namespaces.passesAt).getObject().toString()),
+                NetexParserFromRDF.mapVersion(turtle.getResource(TimetabledPassingTime_resource.getProperty(Namespaces.passesAt).getObject().toString()),
                         StopPointInJourneyPatternRef);
                 TimetabledPassingTime.addContent(StopPointInJourneyPatternRef);
 
@@ -271,6 +319,13 @@ public class line_data_XML {
         return frames;
     }
 
+    /**
+     * Map ServiceFrame
+     *
+     * @param current   Actual element which is being build
+     * @param ns        Namespace of the document
+     * @return
+     */
     private Element mapServiceFrame(Element current, Namespace ns){
         Element ServiceFrame = new Element("ServiceFrame", ns);
         ServiceFrame.setAttribute("id", String.valueOf(Math.abs(random.nextInt())));
@@ -284,13 +339,20 @@ public class line_data_XML {
         return current;
     }
 
+    /**
+     * Map Routes
+     *
+     * @param current   Actual element which is being build
+     * @param ns        Namespace of the document
+     * @return
+     */
     private Element mapRoutes(Element current, Namespace ns){
         Element routes = new Element("routes", ns);
 
         Resource route;
-        StmtIterator iterator = rdf.listStatements(null, Namespaces.onLine, line_resource.getURI());
+        StmtIterator iterator = turtle.listStatements(null, Namespaces.onLine, line_resource.getURI());
         while(iterator.hasNext()){
-            route = rdf.getResource(iterator.nextStatement().getSubject().toString());
+            route = turtle.getResource(iterator.nextStatement().getSubject().toString());
 
             Element Route = new Element("Route", ns);
             Route.setAttribute("id", route.getProperty(RDFS.label).getObject().toString());
@@ -315,7 +377,7 @@ public class line_data_XML {
 
             Element pointsInSequence = new Element("pointsInSequence", ns);
 
-            StmtIterator iterator1 = rdf.listStatements(null, Namespaces.madeUpOf, route);
+            StmtIterator iterator1 = turtle.listStatements(null, Namespaces.madeUpOf, route);
             Resource PoR;
             while(iterator1.hasNext()){
                 Element PointOnRoute = new Element("PointOnRoute", ns);
@@ -330,7 +392,7 @@ public class line_data_XML {
                 NetexParserFromRDF.mapVersion(PoR, PointOnRoute);
                 Element RoutePointRef = new Element("RoutePointRef", ns);
                 RoutePointRef.setAttribute("ref",
-                        rdf.listStatements(null, Namespaces.aViewOf, PoR).nextStatement().getSubject().getProperty(RDFS.label).getObject().toString()
+                        turtle.listStatements(null, Namespaces.aViewOf, PoR).nextStatement().getSubject().getProperty(RDFS.label).getObject().toString()
                 );
                 PointOnRoute.addContent(RoutePointRef);
                 pointsInSequence.addContent(PointOnRoute);
@@ -344,6 +406,13 @@ public class line_data_XML {
         return current;
     }
 
+    /**
+     * Map Lines
+     *
+     * @param current   Actual element which is being build
+     * @param ns        Namespace of the document
+     * @return
+     */
     private Element mapLines(Element current, Namespace ns){
         Element lines = new Element("lines", ns);
 
@@ -395,16 +464,23 @@ public class line_data_XML {
         return current;
     }
 
+    /**
+     * Map JourneyPattern
+     *
+     * @param current   Actual element which is being build
+     * @param ns        Namespace of the document
+     * @return
+     */
     private Element mapJourneyPattern(Element current, Namespace ns){
         Element journeyPatterns = new Element("journeyPatterns", ns);
 
-        StmtIterator routes = rdf.listStatements(null, Namespaces.onLine, line_resource.getURI());
+        StmtIterator routes = turtle.listStatements(null, Namespaces.onLine, line_resource.getURI());
         Resource route;
         while(routes.hasNext()){
             route = routes.nextStatement().getSubject();
 
             Element JourneyPattern = new Element("JourneyPattern", ns);
-            Resource journey_resource = rdf.listStatements(null, Namespaces.onRoute, route.getURI()).nextStatement().getSubject();
+            Resource journey_resource = turtle.listStatements(null, Namespaces.onRoute, route.getURI()).nextStatement().getSubject();
             JourneyPattern.setAttribute("id", journey_resource.getProperty(RDFS.label).getObject().toString());
             NetexParserFromRDF.mapVersion(journey_resource, JourneyPattern);
 
@@ -420,9 +496,9 @@ public class line_data_XML {
             //pointsInSequence
             Element pointsInSequence = new Element("pointsInSequence", ns);
 
-            StmtIterator points = rdf.listStatements(journey_resource, Namespaces.journeyPatternMadeUpOf, (Resource) null);
+            StmtIterator points = turtle.listStatements(journey_resource, Namespaces.journeyPatternMadeUpOf, (Resource) null);
             while(points.hasNext()){
-                Resource point_resource = rdf.getResource(points.nextStatement().getObject().toString());
+                Resource point_resource = turtle.getResource(points.nextStatement().getObject().toString());
                 Element StopPointInJourneyPattern = new Element("StopPointInJourneyPattern", ns);
                 StopPointInJourneyPattern.setAttribute("order", point_resource.getProperty(Namespaces.order).getObject().toString());
                 StopPointInJourneyPattern.setAttribute("id", point_resource.getProperty(RDFS.label).getObject().toString());
@@ -464,9 +540,9 @@ public class line_data_XML {
 
             Element linksInSequence = new Element("linksInSequence", ns);
 
-            StmtIterator links = rdf.listStatements(journey_resource, Namespaces.hasPointsInJourneyPattern, (Resource) null);
+            StmtIterator links = turtle.listStatements(journey_resource, Namespaces.hasPointsInJourneyPattern, (Resource) null);
             while(links.hasNext()){
-                Resource serviceLink_resource = rdf.getResource(links.nextStatement().getObject().toString());
+                Resource serviceLink_resource = turtle.getResource(links.nextStatement().getObject().toString());
                 Element ServiceLinkInJourneyPattern = new Element("ServiceLinkInJourneyPattern", ns);
                 ServiceLinkInJourneyPattern.setAttribute("order", serviceLink_resource.getProperty(Namespaces.order).getObject().toString());
                 ServiceLinkInJourneyPattern.setAttribute("id", serviceLink_resource.getProperty(RDFS.label).getObject().toString());

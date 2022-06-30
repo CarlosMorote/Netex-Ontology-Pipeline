@@ -23,6 +23,9 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+/**
+ * Class which captures the logic and implementation of the pipeline from Turtle/RDF to NeTEx
+ */
 public class NetexParserFromRDF {
 
     public Model rdf;
@@ -30,22 +33,44 @@ public class NetexParserFromRDF {
     public String out_path;
     public XMLOutputter outputter;
 
+    /**
+     * Constructor of the class
+     *
+     * @param rdf_path linked data file path
+     * @param out_path folder which will contain the output
+     */
     public NetexParserFromRDF(String rdf_path, String out_path){
         this.rdf = RDFDataMgr.loadModel(rdf_path);
         this.out_path = out_path;
         outputter = new XMLOutputter(Format.getPrettyFormat());
     }
 
+    /**
+     * Initialize a new empty xml (NeTEx) model
+     */
     private void initXML(){
         this.xml = new Document();
     }
 
+    /**
+     * Write the current xml into output folder
+     *
+     * @param fileName      name of the file to be saved
+     * @throws IOException
+     */
     private void saveXML(String fileName) throws IOException {
         String p = out_path + fileName;
         outputter.output(xml, new FileOutputStream(p));
         System.out.println("File "+p+" generated");
     }
 
+    /**
+     * Map the version of each object
+     *
+     * @param rdf       Resource which contains version value
+     * @param current   Element to add version value
+     * @return          current Element with the version value within it
+     */
     public static Element mapVersion(Resource rdf, Element current){
         Statement v = rdf.getProperty(Namespaces.version);
         if(v != null)
@@ -53,12 +78,22 @@ public class NetexParserFromRDF {
         return current;
     }
 
+    /**
+     * Generate shared file
+     *
+     * @throws IOException
+     */
     private void generate_sharedData() throws IOException{
         initXML();
         (new shared_data_XML(rdf,xml)).generate();
         saveXML("_OST_shared_data.xml"); //TODO: OST must be added dynamic
     }
 
+    /**
+     * Generate all <i>Lines</i> files
+     *
+     * @throws IOException
+     */
     private void generate_LinesData() throws IOException{
         StmtIterator iterator = rdf.listStatements(null, RDF.type, Namespaces.LINE_resource);
         Resource currentResource;
@@ -73,6 +108,11 @@ public class NetexParserFromRDF {
         }
     }
 
+    /**
+     * Main method of the class. It runs all the logic.
+     * First generate the shared files, then the individual Lines.
+     * Finally generate a zip file with those
+     */
     public void parse(){
         try {
             generate_sharedData();
@@ -83,6 +123,11 @@ public class NetexParserFromRDF {
         }
     }
 
+    /**
+     * Zip the resulting folder with the NeTEx information
+     *
+     * @throws IOException
+     */
     private void zip_files() throws IOException {
         List<String> srcFiles = Arrays.stream((new File(this.out_path).list()))
                 .filter(file -> !(file.toUpperCase().contains("DS_STORE") | file.contains(".ttl")))
