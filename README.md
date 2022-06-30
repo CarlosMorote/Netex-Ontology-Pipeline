@@ -26,5 +26,9 @@ direction execute the pipeline and where the files are located. However, the opt
 
 The Main class that must be invoked is called `Main`. The first parameter is the
 direction of the Pipeline (`-f`, `--flow`). It is a optional parameter but the default 
-value is _"NeTEx &rarr; Turtle"_ The other two parameters are mandatory and are the
-loaction of the input and output folders/files.
+value is _"NeTEx &rarr; Turtle"_ Posible values: `N-T` and `T-N`. The other two parameters are mandatory and are the
+loaction of the input and output folders/files. **Without spaces**
+
+Example:
+    
+    java compiled_file.jar Main -f T-N ".linked.ttl" "./output/"
