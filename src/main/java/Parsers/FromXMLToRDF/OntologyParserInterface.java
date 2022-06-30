@@ -1,6 +1,5 @@
 package Parsers.FromXMLToRDF;
 
-import com.google.common.collect.Multimap;
 import org.apache.jena.rdf.model.Resource;
 import org.rutebanken.netex.model.*;
 
