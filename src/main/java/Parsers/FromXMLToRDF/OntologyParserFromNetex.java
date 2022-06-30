@@ -14,6 +14,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Class which implements the actual logic and interfaces of OntologyParserInterface
+ *
+ * @see Parsers.FromXMLToRDF.OntologyParserInterface
+ */
 public class OntologyParserFromNetex implements OntologyParserInterface {
 
     private RDFManager rdfManager;
@@ -21,6 +26,12 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
     private String[] classesToCast;
     private Collection information;
 
+    /**
+     * Class constructor. Here it is defined the classes that are going to be mapped
+     *
+     * @param RDFManager    Manager of linked data
+     * @param netexManager  Manager of NeTEx data
+     */
     public OntologyParserFromNetex(RDFManager RDFManager, NetexManager netexManager) {
         this.rdfManager = RDFManager;
         this.netexManager = netexManager;
@@ -40,6 +51,9 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
         };
     }
 
+    /**
+     * Iterates over all the defined classes and iterates over each individual
+     */
     public void castNetexToOntology(){
         for (String cls: this.classesToCast) {
             information = this.netexManager.getData(cls);
@@ -48,7 +62,12 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
         }
     }
 
-
+    /**
+     * Receive an instance of <b>any</b> class and cast it into linked data
+     *
+     * @param o
+     * @return
+     */
     @Override
     public Object parse(Object o){
         String method = String.format("map%s", o.getClass().getSimpleName());
@@ -65,6 +84,13 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
 
     }
 
+    /**
+     * Map the version of each object
+     *
+     * @param current   Current linked data that it is being parsed
+     * @param obj       Netex object which contains the version
+     * @return          A new resource with the version added
+     */
     private Resource mapVersion(Resource current, EntityInVersionStructure obj){
         String v = obj.getVersion();
 
@@ -74,6 +100,12 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
         return current;
     }
 
+    /**
+     * Map a Quay instance
+     *
+     * @param quay  An instance of the class <i>Quay</i>
+     * @return      A Resource that captures the same data into linked data
+     */
     @Override
     public Resource mapQuay(Quay quay) {
         String id_quay = quay.getId();
@@ -85,6 +117,12 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
         return quay_resource;
     }
 
+    /**
+     * Map an Authority instance
+     *
+     * @param authority    An instance of the class <i>Authority</i>
+     * @return             A Resource that captures the same data into linked data
+     */
     @Override
     public Resource mapAuthority(Authority authority) {
         String id = authority.getId();
@@ -98,6 +136,12 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
         return authority_resource;
     }
 
+    /**
+     * Map an Operator instance
+     *
+     * @param operator      An instance of the class <i>Operator</i>
+     * @return              A Resource that captures the same data into linked data
+     */
     @Override
     public Resource mapOperator(Operator operator) {
         String id = operator.getId();
@@ -112,6 +156,12 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
         return operator_resource;
     }
 
+    /**
+     * Map a ScheduledStopPoint instance
+     *
+     * @param scheduledStopPoint    An instance of the class <i>ScheduledStopPoint</i>
+     * @return                      A Resource that captures the same data into linked data
+     */
     @Override
     public Resource mapScheduledStopPoint(ScheduledStopPoint scheduledStopPoint) {
         String id = scheduledStopPoint.getId();
@@ -148,6 +198,12 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
         return scheduledStopPoint_resource;
     }
 
+    /**
+     * Map a JourneyPattern instance
+     *
+     * @param journeyPattern    An instance of the class <i>JourneyPattern</i>
+     * @return                  A Resource that captures the same data into linked data
+     */
     @Override
     public Resource mapJourneyPattern(JourneyPattern journeyPattern) {
         String id = journeyPattern.getId();
@@ -173,6 +229,13 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
         return journeyPattern_resource;
     }
 
+    /**
+     * Map a StopPointInJourneyPattern instance
+     *
+     * @param point                     An instance of the class <i>StopPointInJourneyPattern</i>
+     * @param journeyPattern_resource   Resource which will be associated to <i>point</i>
+     * @return                          A Resource that captures the same data into linked data
+     */
     @Override
     public Resource mapStopPointInJourneyPattern(StopPointInJourneyPattern point, Resource journeyPattern_resource) {
         String id_point = point.getId();
@@ -213,6 +276,13 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
         return stopPointInJourneyPattern_resource;
     }
 
+    /**
+     * Map a ServiceLinkInJourneyPattern instance
+     *
+     * @param link                      An instance of the class <i>ServiceLinkInJourneyPattern</i>
+     * @param journeyPattern_resource   Resource which will be associated to <i>link</i>
+     * @return                          A Resource that captures the same data into linked data
+     */
     @Override
     public Resource mapServiceLinkInJourneyPattern(ServiceLinkInJourneyPattern_VersionedChildStructure link, Resource journeyPattern_resource) {
         String link_id = link.getId();
@@ -231,6 +301,12 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
         return link_resource;
     }
 
+    /**
+     * Map a Route instance
+     *
+     * @param route     An instance of the class <i>Route</i>
+     * @return          A Resource that captures the same data into linked data
+     */
     @Override
     public Resource mapRoute(Route route) {
         String id_route = route.getId();
@@ -262,6 +338,12 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
         return route_resource;
     }
 
+    /**
+     * Map a RoutePoint instance
+     *
+     * @param routePoint    An instance of the class <i>RoutePoint</i>
+     * @return              A Resource that captures the same data into linked data
+     */
     @Override
     public Resource mapRoutePoint(RoutePoint routePoint) {
         String id_routePoint = routePoint.getId();
@@ -280,6 +362,12 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
         return routePoint_resource;
     }
 
+    /**
+     * Map a Line instance
+     *
+     * @param line      An instance of the class <i>Line</i>
+     * @return          A Resource that captures the same data into linked data
+     */
     @Override
     public Resource mapLine(Line line) {
         String id_line = line.getId();
@@ -315,6 +403,12 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
         return line_resource;
     }
 
+    /**
+     * Map a ServiceJourney instance
+     *
+     * @param serviceJourney    An instance of the class <i>ServiceJourney</i>
+     * @return                  A Resource that captures the same data into linked data
+     */
     @Override
     public Resource mapServiceJourney(ServiceJourney serviceJourney) {
         String id_serviceJourney = serviceJourney.getId();
@@ -380,6 +474,12 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
         return serviceJourney_resource;
     }
 
+    /**
+     * Map a OperatingPeriod instance
+     *
+     * @param operatingPeriod   An instance of the class <i>OperatingPeriod</i>
+     * @return                  A Resource that captures the same data into linked data
+     */
     @Override
     public Resource mapOperatingPeriod(OperatingPeriod operatingPeriod) {
         String id_operatingPeriod = operatingPeriod.getId();
@@ -393,6 +493,12 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
         return operatingPeriod_resource;
     }
 
+    /**
+     * Map a DayType instance
+     *
+     * @param dayType   An instance of the class <i>DayType</i>
+     * @return          A Resource that captures the same data into linked data
+     */
     @Override
     public Resource mapDayType(DayType dayType) {
         String id_dayType = dayType.getId();
@@ -430,6 +536,12 @@ public class OntologyParserFromNetex implements OntologyParserInterface {
         return dayType_resource;
     }
 
+    /**
+     * Map a Network instance
+     *
+     * @param network   An instance of the class <i>Network</i>
+     * @return          A Resource that captures the same data into linked data
+     */
     @Override
     public Resource mapNetwork(Network network) {
         String id_network = network.getId();
