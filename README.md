@@ -1,8 +1,8 @@
 # NeTEx - Linked data - Pipeline
 
-### Morote García, Carlos
 
-#### ETSIINF, UPM
+[![Generic badge](https://img.shields.io/badge/Status-Developing-yellow)](https://shields.io/)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/oeg-upm/Mapeathor/blob/master/LICENSE)
 
 ---
 
@@ -17,9 +17,28 @@ The project developed in Java seeks to satisfy this need while facilitating
 the incremental implementation in order to integrate it natively in 
 Open Trip Planner.
 
+ - Ontology definition [here](https://oeg-upm.github.io/mobility/index.html#)
+ - Transmodel (NeTEx) definition [here](https://www.transmodel-cen.eu/model/index.htm)
+
+## Requirements 
+
+Before even compile and run the code the follow requirements mus be fulfilled
+ - Get [Java 11](https://www.oracle.com/es/java/technologies/javase/jdk11-archive-downloads.html) installed
+ - Get [Maven](https://maven.apache.org) installed
+ - Data to cast in its origin format (NeTEx or Turtle)
+   - **Netex** compressed in a zip. `ouput.netex.zip`
+   - **Turtle** as a _ttl_ exetension single file. `linked.ttl.zip`
+
 ## Run the code
 
-In order to run the code we have to use an IDE, such as IntelliJ, or use a terminal.
+To generate a runnable jar file we must use _maven_. 
+From terminal use the following command to generate an executable jar.
+
+      mvn clean package
+
+<br>
+
+In order to run the code we have to use an IDE, such as IntelliJ, or use a terminal if the jar was previously generated.
 Nonetheless a set of parameters must be provided so the program knows in which
 direction execute the pipeline and where the files are located. However, the option
 `-h` is available to further details.
@@ -29,6 +48,20 @@ direction of the Pipeline (`-f`, `--flow`). It is a optional parameter but the d
 value is _"NeTEx &rarr; Turtle"_ Posible values: `N-T` and `T-N`. The other two parameters are mandatory and are the
 loaction of the input and output folders/files. **Without spaces**
 
-Example:
+Get _help_ with:
+
+    java -jar <complied_file.jar> -h
+
+Example from Turtle to NeTEx:
     
-    java compiled_file.jar Main -f T-N ".linked.ttl" "./output/"
+    java -jar <compiled_file.jar> --flow T-N "./linked.ttl" "./output/"
+
+Example from NeTEx to Turtle:
+    
+    java -jar <compiled_file.jar> --flow N-T "./output.netex.zip" "./output/linked.ttl"
+
+---
+
+## Authors
+
+ - [Morote García, Carlos](https://github.com/CarlosMorote)
